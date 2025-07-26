@@ -6,6 +6,11 @@ import Home from "../Pages/Home/Home/Home";
 import AuthLayout from "../Layouts/AuthLayout/AuthLayout";
 import Login from "../Pages/Auth/Login/Login";
 import Register from "../Pages/Auth/Register/Register";
+import Adopt from "../Pages/Adopt/Adopt";
+import Shop from "../Pages/Shop/Shop";
+import Favourites from "../Pages/Favourites/Favourites";
+import DashboardLayout from "../Layouts/DashboardLayout/DashboardLayout";
+import DashboardWelcome from "../Pages/DashboardWelcome/DashboardWelcome";
 
 
 export const router = createBrowserRouter([
@@ -17,19 +22,41 @@ export const router = createBrowserRouter([
             index:true,
             path:'/',
             element:<Home></Home>
+        },
+        {
+          path:'adopt',
+          element:<Adopt></Adopt>
+        },
+        {
+          path:'shop',
+          element:<Shop></Shop>
+        },
+        {
+          path:'/favourites',
+          element:<Favourites></Favourites>
         }
     ]
   },
   {
-    path:'/',
+    path:'/auth',
     element:<AuthLayout></AuthLayout>,
     children:[
       {
-        path:'/login',
+        path:'login',
         element:<Login></Login>
       },{
-        path:'/register',
+        path:'register',
         element:<Register></Register>
+      }
+    ]
+  },
+  {
+    path:'/dashboard',
+    element:<DashboardLayout></DashboardLayout>,
+    children:[
+      {
+        index:true,
+        element:<DashboardWelcome></DashboardWelcome>
       }
     ]
   }

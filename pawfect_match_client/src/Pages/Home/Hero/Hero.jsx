@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import bgimage from "../../../assets/Front-dog.jpg"; 
+import { Link } from 'react-router';
 
 
 const Hero = () => {
@@ -64,9 +65,9 @@ const Hero = () => {
             Swipe through adorable pets waiting for their forever home. Every swipe could change two lives forever.
           </p>
           <div className="flex gap-4">
-            <button className="bg-orange-400 text-white px-6 py-3 rounded-full font-semibold shadow hover:bg-orange-500 transition flex items-center gap-2">
+            <Link to='/adopt' className="bg-orange-400 text-white px-6 py-3 rounded-full font-semibold shadow hover:bg-orange-500 transition flex items-center gap-2">
               Start Swiping <span className="text-lg">&#8594;</span>
-            </button>
+            </Link>
             <button className="bg-gray-800/60 text-white px-6 py-3 rounded-full font-semibold shadow hover:bg-gray-700 transition">
               Learn More
             </button>
@@ -74,7 +75,7 @@ const Hero = () => {
         </div>
 
         {/* Right Side - Card */}
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex mt-10 flex-col items-center justify-end">
           <div className="bg-gray-900/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 min-w-[360px] max-w-sm flex flex-col items-center gap-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg font-semibold text-white">Swipe for Love</span>
