@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
 
 const app = express();
@@ -67,6 +67,9 @@ async function run() {
 
     const usersCollection = client.db("pawfect_match").collection("users");
     const petsCollection = client.db("pawfect_match").collection("pets");
+    const adoptionPostsCollection = client
+      .db("pawfect_match")
+      .collection("adoption-posts");
 
     // verify admin
     const verifyAdmin = async (req, res, next) => {
@@ -141,6 +144,27 @@ async function run() {
       }
     });
 
+    app.get("/pets/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).json({ error: "Invalid pet ID" });
+        }
+
+        const pet = await petsCollection.findOne({ _id: new ObjectId(id) });
+
+        if (!pet) {
+          return res.status(404).json({ error: "Pet not found" });
+        }
+
+        res.send(pet);
+      } catch (error) {
+        console.error("Failed to fetch pet by ID:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
     app.post("/pets", async (req, res) => {
       try {
         const pet = req.body;
@@ -166,6 +190,44 @@ async function run() {
       } catch (err) {
         console.error("Error updating pet:", err);
         res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    app.patch("/pets/:id/adoption", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { isListedForAdoption } = req.body;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).json({ error: "Invalid pet ID" });
+        }
+
+        const result = await petsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              isListedForAdoption: isListedForAdoption,
+            },
+          }
+        );
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error updating pet adoption status:", error);
+        res.status(500).json({ error: "Failed to update pet adoption status" });
+      }
+    });
+
+    // Adoption post
+
+    app.post("/adoptionPosts", async (req, res) => {
+      try {
+        const adoptionPost = req.body;
+        const result = await adoptionPostsCollection.insertOne(adoptionPost);
+        res.send(result);
+      } catch (error) {
+        console.error("Error creating adoption post:", error);
+        res.status(500).json({ error: "Failed to create adoption post" });
       }
     });
 

@@ -1,19 +1,18 @@
-// MyPets.jsx
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import { FaPaw, FaEdit, FaTimesCircle } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import EmptyIllustration from "../../assets/empty-pets.svg"; // Add a nice SVG illustration here
+import { useNavigate } from "react-router";
+import EmptyIllustration from "../../assets/empty-pets.svg";
 
 const gradients = [
-  "bg-gradient-to-br from-pink-500 to-red-400",
-  "bg-gradient-to-br from-blue-400 to-indigo-500",
-  "bg-gradient-to-br from-green-400 to-emerald-500",
-  "bg-gradient-to-br from-yellow-400 to-orange-500",
-  "bg-gradient-to-br from-purple-400 to-fuchsia-500",
+  "from-orange-100 via-orange-200 to-orange-300",
+  "from-teal-100 via-teal-200 to-teal-300",
+  "from-rose-100 via-rose-200 to-rose-300",
+  "from-sky-100 via-sky-200 to-sky-300",
+  "from-violet-100 via-violet-200 to-violet-300",
 ];
 
 const MyPets = () => {
@@ -40,7 +39,7 @@ const MyPets = () => {
   });
 
   const handlePutForAdoption = (petId) => {
-    navigate(`/create-adoption-post/${petId}`);
+    navigate(`/dashboard/create-adoption-post/${petId}`);
   };
 
   const handleCancelAdoption = (petId) => {
@@ -54,13 +53,17 @@ const MyPets = () => {
       confirmButtonText: "Yes, cancel it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        updateMutation.mutate({ petId, updates: { isListedForAdoption: false } });
+        updateMutation.mutate({
+          petId,
+          updates: { isListedForAdoption: false },
+        });
         Swal.fire("Cancelled!", "This pet has been unlisted.", "success");
       }
     });
   };
 
-  if (isLoading) return <div className="text-center py-20">Loading pets...</div>;
+  if (isLoading)
+    return <div className="text-center py-20">Loading pets...</div>;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -77,7 +80,9 @@ const MyPets = () => {
         >
           <img src={EmptyIllustration} alt="No Pets" className="w-64 mb-6" />
           <h3 className="text-2xl font-semibold mb-2">No pet accounts yet</h3>
-          <p className="text-base-content">Start by creating your first pet profile!</p>
+          <p className="text-base-content">
+            Start by creating your first pet profile!
+          </p>
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -86,37 +91,78 @@ const MyPets = () => {
               key={pet._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className={`card shadow-xl text-white ${gradients[idx % gradients.length]}`}
+              whileHover={{
+                scale: 1.02,
+                boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)",
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 150,
+                damping: 15,
+                delay: idx * 0.05,
+              }}
+              className={`rounded-2xl shadow-md overflow-hidden bg-gradient-to-br ${
+                gradients[idx % gradients.length]
+              } relative`}
             >
-              <figure className="h-52">
+              {/* Image section */}
+              <div className="h-52 w-full overflow-hidden relative group">
                 <img
                   src={pet.images?.[0]}
                   alt={pet.name}
-                  className="object-cover h-full w-full rounded-t-xl"
+                  className="object-cover w-full h-full rounded-t-2xl group-hover:scale-105 transition-transform duration-500 ease-in-out"
                 />
-              </figure>
-              <div className="card-body">
-                <h3 className="card-title text-2xl">{pet.name}</h3>
-                <p><strong>Type:</strong> {pet.type}</p>
-                <p><strong>Breed:</strong> {pet.breed}</p>
-                <p><strong>Gender:</strong> {pet.gender}</p>
-                <p><strong>Age:</strong> {pet.age} year(s)</p>
-                {pet.color && <p><strong>Color:</strong> {pet.color}</p>}
-                {pet.weight && <p><strong>Weight:</strong> {pet.weight}</p>}
-                <p><strong>Vaccinated:</strong> {pet.vaccinated ? "Yes" : "No"}</p>
-                <div className="mt-4 flex gap-2">
+                <div className="absolute inset-0 bg-black/10"></div>
+                <h3 className="absolute bottom-2 left-4 text-white text-2xl font-bold drop-shadow">
+                  {pet.name}
+                </h3>
+              </div>
+
+              {/* Info and Buttons (same as before) */}
+              <div className="p-5 text-gray-800">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <p>
+                    <span className="font-semibold">Type:</span> {pet.type}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Breed:</span> {pet.breed}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Gender:</span> {pet.gender}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Age:</span> {pet.age}{" "}
+                    year(s)
+                  </p>
+                  {pet.color && (
+                    <p>
+                      <span className="font-semibold">Color:</span> {pet.color}
+                    </p>
+                  )}
+                  {pet.weight && (
+                    <p>
+                      <span className="font-semibold">Weight:</span>{" "}
+                      {pet.weight}
+                    </p>
+                  )}
+                  <p>
+                    <span className="font-semibold">Vaccinated:</span>{" "}
+                    {pet.vaccinated ? "Yes" : "No"}
+                  </p>
+                </div>
+
+                <div className="mt-5 flex justify-end">
                   {pet.isListedForAdoption ? (
                     <button
                       onClick={() => handleCancelAdoption(pet._id)}
-                      className="btn btn-sm btn-error text-white gap-2"
+                      className="btn btn-error text-white gap-2"
                     >
                       <FaTimesCircle /> Cancel Adoption
                     </button>
                   ) : (
                     <button
                       onClick={() => handlePutForAdoption(pet._id)}
-                      className="btn btn-sm btn-accent text-white gap-2"
+                      className="btn btn-primary text-white gap-2"
                     >
                       <FaEdit /> Put for Adoption
                     </button>

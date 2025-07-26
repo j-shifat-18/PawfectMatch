@@ -12,6 +12,7 @@ import DashboardWelcome from "../Pages/DashboardWelcome/DashboardWelcome";
 import CreatePetAccount from "../Pages/CreatePetAccount/CreatePetAccount";
 import UserProtectedRoute from "../Routes/UserProtectedRoute";
 import MyPets from "../Pages/MyPets/MyPets";
+import CreateAdoptionPost from "../Pages/CreateAdoptionPost/CreateAdoptionPost";
 
 export const router = createBrowserRouter([
   {
@@ -72,6 +73,14 @@ export const router = createBrowserRouter([
         element: (
           <UserProtectedRoute>
             <MyPets></MyPets>
+          </UserProtectedRoute>
+        ),
+      },
+      {
+        path: "create-adoption-post/:id",
+        element: (
+          <UserProtectedRoute>
+            <CreateAdoptionPost></CreateAdoptionPost>
           </UserProtectedRoute>
         ),
       },
