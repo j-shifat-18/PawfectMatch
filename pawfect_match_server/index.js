@@ -7,8 +7,7 @@ const admin = require("firebase-admin");
 const app = express();
 const port = process.env.PORT || 3000;
 
-
-// firebase admin setup 
+// firebase admin setup
 const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString(
   "utf8"
 );
@@ -30,8 +29,6 @@ app.use(
 
 app.use(express.json());
 
-
-
 // verify firebase token
 const verifyFBToken = async (req, res, next) => {
   const authorization = req.headers.authorization;
@@ -52,7 +49,6 @@ const verifyFBToken = async (req, res, next) => {
   }
 };
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.psjt8aa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -70,11 +66,9 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("pawfect_match").collection("users");
+    const petsCollection = client.db("pawfect_match").collection("pets");
 
-
-
-
-    // verify admin 
+    // verify admin
     const verifyAdmin = async (req, res, next) => {
       try {
         const email = req.decoded?.email;
@@ -98,25 +92,25 @@ async function run() {
     };
 
     // users
-    // app.get("/users", async (req, res) => {
-    //   const { email, role } = req.query;
+    app.get("/users", async (req, res) => {
+      const { email, role } = req.query;
 
-    //   const filter = {};
-    //   if (email) filter.email = email;
-    //   if (role) filter.role = role;
+      const filter = {};
+      if (email) filter.email = email;
+      if (role) filter.role = role;
 
-    //   try {
-    //     const users = await usersCollection.find(filter).toArray();
-    //     // If specific email is queried and only one result is expected
-    //     if (email && !role) {
-    //       return res.send(users[0] || null);
-    //     }
-    //     res.send(users);
-    //   } catch (err) {
-    //     console.error(err);
-    //     res.status(500).send({ message: "Failed to fetch users" });
-    //   }
-    // });
+      try {
+        const users = await usersCollection.find(filter).toArray();
+        // If specific email is queried and only one result is expected
+        if (email && !role) {
+          return res.send(users[0] || null);
+        }
+        res.send(users);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Failed to fetch users" });
+      }
+    });
 
     app.post("/users", async (req, res) => {
       const email = req.body.email;
@@ -131,6 +125,48 @@ async function run() {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
       res.send(result);
+    });
+
+    // pets
+
+    // get all pets for a user
+    app.get("/pets", async (req, res) => {
+      try {
+        const { ownerId } = req.query;
+        const pets = await petsCollection.find({ ownerId }).toArray();
+        res.json(pets);
+      } catch (err) {
+        console.error("Error fetching pets:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    app.post("/pets", async (req, res) => {
+      try {
+        const pet = req.body;
+        pet.createdAt = new Date();
+        const result = await petsCollection.insertOne(pet);
+        res.status(201).json(result);
+      } catch (err) {
+        console.error("Error creating pet:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    // update pet info
+    app.patch("/pets/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const updates = req.body;
+        const result = await petsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updates }
+        );
+        res.json(result);
+      } catch (err) {
+        console.error("Error updating pet:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
     });
 
     // Send a ping to confirm a successful connection

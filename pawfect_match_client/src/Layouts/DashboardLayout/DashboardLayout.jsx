@@ -1,4 +1,4 @@
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaPaw } from "react-icons/fa";
 import { NavLink, Outlet } from "react-router";
 
 import { useQuery } from "@tanstack/react-query";
@@ -61,17 +61,24 @@ const DashboardLayout = () => {
       <div className="drawer-side">
         <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
         <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content text-xl">
-          <div className="mb-5">
-            {/* <SkyTowerLogo /> */}
-          </div>
+          <div className="mb-5">{/* <SkyTowerLogo /> */}</div>
 
           {/* User navigation */}
-          {(userRole?.role === "user") && (
+          {userRole?.role === "user" && (
             <>
               <li>
-                <NavLink to="/dashboard/create-pet-account" className={linkClass}>
+                <NavLink
+                  to="/dashboard/create-pet-account"
+                  className={linkClass}
+                >
                   <Cat className="w-5 h-5" />
                   Create Pet Account
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/dashboard/my-pets" className={linkClass}>
+                  <FaPaw className="w-5 h-5" />
+                  My Pets
                 </NavLink>
               </li>
             </>

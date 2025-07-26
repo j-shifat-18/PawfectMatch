@@ -11,6 +11,7 @@ import DashboardLayout from "../Layouts/DashboardLayout/DashboardLayout";
 import DashboardWelcome from "../Pages/DashboardWelcome/DashboardWelcome";
 import CreatePetAccount from "../Pages/CreatePetAccount/CreatePetAccount";
 import UserProtectedRoute from "../Routes/UserProtectedRoute";
+import MyPets from "../Pages/MyPets/MyPets";
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +64,14 @@ export const router = createBrowserRouter([
         element: (
           <UserProtectedRoute>
             <CreatePetAccount></CreatePetAccount>
+          </UserProtectedRoute>
+        ),
+      },
+      {
+        path: "my-pets",
+        element: (
+          <UserProtectedRoute>
+            <MyPets></MyPets>
           </UserProtectedRoute>
         ),
       },
