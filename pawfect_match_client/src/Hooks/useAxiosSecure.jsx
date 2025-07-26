@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 const axiosSecure = axios.create({
-  baseURL: 'https://sky-tower-server.vercel.app', 
+  baseURL: 'http://localhost:3000', 
 });
 
 const useAxiosSecure = () => {
