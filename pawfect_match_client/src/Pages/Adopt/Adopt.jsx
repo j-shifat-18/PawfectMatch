@@ -3,9 +3,13 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Link } from "react-router";
 import AdoptionCard from "../../Components/AdoptionCard/AdoptionCard";
+import useAuth from "../../Hooks/useAuth";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Adopt = () => {
   const axiosSecure = useAxiosSecure();
+  const { user } = useAuth();
   const [adoptionPosts, setAdoptionPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
@@ -23,12 +27,44 @@ const Adopt = () => {
     fetchPosts();
   }, [search, type, availability]);
 
-  const handleFavoriteToggle = (postId) => {
-    setFavorites((prev) =>
-      prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
-    );
-    // TODO: send to backend to save favorite for user
+const handleFavoriteToggle = async (postId) => {
+  if (!user) {
+    toast.error("You must be logged in to favorite a post.");
+    return;
+  }
+
+  const isFav = favorites.includes(postId);
+
+  try {
+    if (isFav) {
+      // Remove favorite
+      await axiosSecure.delete("/favorites", { data: { userId: user.uid, postId } });
+      setFavorites((prev) => prev.filter((id) => id !== postId));
+      toast.info("Removed from favorites.");
+    } else {
+      // Add favorite
+      await axiosSecure.post("/favorites", { userId: user.uid, postId });
+      setFavorites((prev) => [...prev, postId]);
+      toast.success("Added to favorites!");
+    }
+  } catch (error) {
+    toast.error(error.response?.data?.error || "Failed to update favorites.");
+  }
+};
+
+// Fetch favorites on mount
+useEffect(() => {
+  if (!user) return;
+  const fetchFavorites = async () => {
+    try {
+      const { data } = await axiosSecure.get(`/favorites/${user.uid}`);
+      setFavorites(data);
+    } catch (error) {
+      console.error("Failed to load favorites:", error);
+    }
   };
+  fetchFavorites();
+}, [user]);
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
