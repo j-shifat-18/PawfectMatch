@@ -1,6 +1,4 @@
-import {
-  createBrowserRouter,
-} from "react-router";
+import { createBrowserRouter } from "react-router";
 import RootLayout from "../Layouts/RootLayout/RootLayout";
 import Home from "../Pages/Home/Home/Home";
 import AuthLayout from "../Layouts/AuthLayout/AuthLayout";
@@ -11,53 +9,63 @@ import Shop from "../Pages/Shop/Shop";
 import Favourites from "../Pages/Favourites/Favourites";
 import DashboardLayout from "../Layouts/DashboardLayout/DashboardLayout";
 import DashboardWelcome from "../Pages/DashboardWelcome/DashboardWelcome";
-
+import CreatePetAccount from "../Pages/CreatePetAccount/CreatePetAccount";
+import UserProtectedRoute from "../Routes/UserProtectedRoute";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout></RootLayout>,
-    children:[
-        {
-            index:true,
-            path:'/',
-            element:<Home></Home>
-        },
-        {
-          path:'adopt',
-          element:<Adopt></Adopt>
-        },
-        {
-          path:'shop',
-          element:<Shop></Shop>
-        },
-        {
-          path:'/favourites',
-          element:<Favourites></Favourites>
-        }
-    ]
+    children: [
+      {
+        index: true,
+        path: "/",
+        element: <Home></Home>,
+      },
+      {
+        path: "adopt",
+        element: <Adopt></Adopt>,
+      },
+      {
+        path: "shop",
+        element: <Shop></Shop>,
+      },
+      {
+        path: "/favourites",
+        element: <Favourites></Favourites>,
+      },
+    ],
   },
   {
-    path:'/auth',
-    element:<AuthLayout></AuthLayout>,
-    children:[
+    path: "/auth",
+    element: <AuthLayout></AuthLayout>,
+    children: [
       {
-        path:'login',
-        element:<Login></Login>
-      },{
-        path:'register',
-        element:<Register></Register>
-      }
-    ]
+        path: "login",
+        element: <Login></Login>,
+      },
+      {
+        path: "register",
+        element: <Register></Register>,
+      },
+    ],
   },
   {
-    path:'/dashboard',
-    element:<DashboardLayout></DashboardLayout>,
-    children:[
+    path: "/dashboard",
+    element: <DashboardLayout></DashboardLayout>,
+    children: [
       {
-        index:true,
-        element:<DashboardWelcome></DashboardWelcome>
-      }
-    ]
-  }
+        index: true,
+        element: <DashboardWelcome></DashboardWelcome>,
+      },
+      {
+        path: "create-pet-account",
+        element: (
+          <UserProtectedRoute>
+            <CreatePetAccount></CreatePetAccount>
+          </UserProtectedRoute>
+        ),
+      },
+    ],
+  },
 ]);

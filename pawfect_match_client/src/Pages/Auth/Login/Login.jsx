@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAuth from "../../../Hooks/useAuth";
 import { GrGoogle } from "react-icons/gr";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -47,8 +47,28 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     signInWithGoogle()
-      .then((result) => {
+      .then(async (result) => {
         console.log(result);
+        const user = result.user;
+        const userInfo = {
+          name: user.displayName,
+          email: user.email,
+          role: "user",
+          created_at: new Date().toISOString(),
+          last_log_in: new Date().toISOString(),
+        };
+
+        const userRes = await axiosPublic.post("/users", userInfo);
+        console.log(userRes);
+
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Account created successfully",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        navigate("/");
       })
       .catch((error) => {
         console.log(error);
@@ -113,7 +133,10 @@ const Login = () => {
           <div>
             <p className="text-base">
               Don't have an account ?{" "}
-              <Link to="/auth/register" className="text-primary link link-hover">
+              <Link
+                to="/auth/register"
+                className="text-primary link link-hover"
+              >
                 Register
               </Link>
             </p>
@@ -125,7 +148,10 @@ const Login = () => {
         </div>
 
         {/* Google login */}
-        <button onClick={handleGoogleLogin} className="btn bg-primary text-black border-none">
+        <button
+          onClick={handleGoogleLogin}
+          className="btn bg-primary text-black border-none"
+        >
           {/* <svg
             aria-label="Google logo"
             width="26"

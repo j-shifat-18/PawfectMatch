@@ -12,24 +12,25 @@ import {
   CreditCard,
   ReceiptText,
   UserCircle,
+  Cat,
 } from "lucide-react";
-// import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import Loader from "../../Components/Loader/Loader";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const DashboardLayout = () => {
   const { user } = useAuth();
-//   const axiosSecure = useAxiosSecure();
+  const axiosSecure = useAxiosSecure();
 
-//   const { data: userRole, isLoading } = useQuery({
-//     queryKey: ["users", user?.email],
-//     queryFn: async () => {
-//       const res = await axiosSecure.get(`/users?email=${user.email}`);
-//       return res.data;
-//     },
-//   });
+  const { data: userRole, isLoading } = useQuery({
+    queryKey: ["users", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/users?email=${user.email}`);
+      return res.data;
+    },
+  });
 
-//   if (isLoading) return <Loader />;
+  if (isLoading) return <Loader />;
 
   const linkClass = ({ isActive }) =>
     `flex items-center gap-2 px-2 py-2 rounded-lg ${
@@ -65,16 +66,16 @@ const DashboardLayout = () => {
           </div>
 
           {/* User navigation */}
-          {/* {(userRole?.role === "user" || userRole?.role === "member") && (
+          {(userRole?.role === "user") && (
             <>
               <li>
-                <NavLink to="/dashboard/my-profile" className={linkClass}>
-                  <UserCircle className="w-5 h-5" />
-                  My Profile
+                <NavLink to="/dashboard/create-pet-account" className={linkClass}>
+                  <Cat className="w-5 h-5" />
+                  Create Pet Account
                 </NavLink>
               </li>
             </>
-          )} */}
+          )}
 
           {/* {userRole?.role === "member" && (
             <>
