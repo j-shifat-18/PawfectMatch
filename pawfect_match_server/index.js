@@ -2,16 +2,58 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
-
-
+const admin = require("firebase-admin");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+
+// firebase admin setup 
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString(
+  "utf8"
+);
+
+const serviceAccount = JSON.parse(decoded);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+// middleware
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend origin
+    credentials: true, // using cookies/auth headers
+  })
+);
+
 app.use(express.json());
 
-const uri =`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.psjt8aa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
+
+// verify firebase token
+const verifyFBToken = async (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization?.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .send({ error: true, message: "Unauthorized access" });
+  }
+
+  const token = authorization.split(" ")[1];
+
+  try {
+    const decodedUser = await admin.auth().verifyIdToken(token);
+    req.decoded = decodedUser;
+    next();
+  } catch (error) {
+    return res.status(403).send({ error: true, message: "Forbidden" });
+  }
+};
+
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.psjt8aa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -31,7 +73,51 @@ async function run() {
 
 
 
+
+    // verify admin 
+    const verifyAdmin = async (req, res, next) => {
+      try {
+        const email = req.decoded?.email;
+        if (!email) {
+          return res.status(401).send({ error: true, message: "Unauthorized" });
+        }
+
+        const user = await usersCollection.findOne({ email });
+
+        if (!user || user.role !== "admin") {
+          return res
+            .status(403)
+            .send({ error: true, message: "Forbidden: Admins only" });
+        }
+
+        next();
+      } catch (error) {
+        console.error("Admin check error:", error);
+        res.status(500).send({ error: true, message: "Internal server error" });
+      }
+    };
+
     // users
+    // app.get("/users", async (req, res) => {
+    //   const { email, role } = req.query;
+
+    //   const filter = {};
+    //   if (email) filter.email = email;
+    //   if (role) filter.role = role;
+
+    //   try {
+    //     const users = await usersCollection.find(filter).toArray();
+    //     // If specific email is queried and only one result is expected
+    //     if (email && !role) {
+    //       return res.send(users[0] || null);
+    //     }
+    //     res.send(users);
+    //   } catch (err) {
+    //     console.error(err);
+    //     res.status(500).send({ message: "Failed to fetch users" });
+    //   }
+    // });
+
     app.post("/users", async (req, res) => {
       const email = req.body.email;
       const userExists = await usersCollection.findOne({ email });
@@ -46,14 +132,6 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
-
-
-
-
-
-
-
-
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
