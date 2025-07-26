@@ -113,7 +113,7 @@ const Login = () => {
           <div>
             <p className="text-base">
               Don't have an account ?{" "}
-              <Link to="/register" className="text-primary link link-hover">
+              <Link to="/auth/register" className="text-primary link link-hover">
                 Register
               </Link>
             </p>

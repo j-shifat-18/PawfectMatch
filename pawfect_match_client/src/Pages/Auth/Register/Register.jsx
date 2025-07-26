@@ -207,7 +207,7 @@ const Register = () => {
           <div>
             <p className=" text-base">
               Already have an account ?{" "}
-              <Link to="/login" className="text-primary link link-hover">
+              <Link to="/auth/login" className="text-primary link link-hover">
                 Login
               </Link>
             </p>

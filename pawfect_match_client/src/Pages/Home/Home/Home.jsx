@@ -6,7 +6,6 @@ const Home = () => {
     return (
         <div>
             {/* Home page sections */}
-            <Navbar></Navbar>
             <Hero></Hero>
         </div>
     );
