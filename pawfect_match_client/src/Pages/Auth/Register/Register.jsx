@@ -36,6 +36,7 @@ const Register = () => {
         // console.log(result.user);
 
         const userInfo = {
+          name:data.name,
           email: data.email,
           role: "user",
           created_at: new Date().toISOString(),
@@ -67,6 +68,7 @@ const Register = () => {
         console.log(result);
         const user = result.user;
         const userInfo = {
+          name:user.displayName,
           email: user.email,
           role: "user",
           created_at: new Date().toISOString(),
