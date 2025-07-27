@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 const AdoptionCard = ({ post, favorites, handleFavoriteToggle }) => {
   const { petInfo = {} } = post;
 
+
   const availabilityBadge = petInfo.isListedForAdoption ? (
     <div className="badge badge-success text-white bg-gradient-to-r from-green-400 to-teal-500 border-0">
       Available

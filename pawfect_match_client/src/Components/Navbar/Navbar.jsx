@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { useState } from "react";
+import PawfectMatchLogo from "../PawfectMatchLogo/PawfectMatchLogo";
 
 // absolute top-0 left-0 w-full flex items-center justify-between px-12 py-6 z-10 bg-black/10 backdrop-blur-md border-b border-white/10
 
@@ -43,12 +44,12 @@ const Navbar = () => {
     }`;
 
   return (
-    <nav className="fixed w-full flex items-center justify-between px-12 py-6 z-20 bg-black/10 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed w-full flex items-center justify-between px-12 py-6 z-20 bg-transparent backdrop-blur-xl border-b border-white/10">
       {/* Logo and Name */}
-      <h1 className="text-white">PawfectMatch</h1>
+      <PawfectMatchLogo></PawfectMatchLogo>
         {/* <SkyTowerLogo></SkyTowerLogo> */}
       {/* Nav Links */}
-      <div className="flex items-center gap-8 text-white">
+      <div className="flex items-center gap-8 text-black">
         <NavLink to="/" className={linkClass}>Home</NavLink>
         <NavLink to="/adopt" className={linkClass}>Adopt</NavLink>
         <NavLink to="/shop" className={linkClass}>Shop</NavLink>

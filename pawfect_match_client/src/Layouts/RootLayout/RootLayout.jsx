@@ -5,22 +5,25 @@ import Footer from "../../Components/Footer/Footer";
 
 const RootLayout = () => {
   return (
-    <div className="min-h-screen w-full relative bg-black">
-      {/* Copper Forge Background with Top Glow */}
+    <div className="min-h-screen w-full relative bg-white">
+      {/* Soft Yellow Glow */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249, 115, 22, 0.25), transparent 70%), #000000",
+          backgroundImage: `
+      radial-gradient(circle at center, #FFB347 0%, transparent 50%)
+    `,
+          opacity: 0.6,
+          mixBlendMode: "multiply",
         }}
       />
 
       {/* Your Content/Components */}
-
       <header>
         <Navbar></Navbar>
+        <div className="h-23"></div>
       </header>
-      <main className="pt-10">
+      <main className="">
         <Outlet></Outlet>
       </main>
       <footer>

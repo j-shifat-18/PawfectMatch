@@ -1,74 +1,86 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Link } from "react-router";
 import AdoptionCard from "../../Components/AdoptionCard/AdoptionCard";
 import useAuth from "../../Hooks/useAuth";
 import { toast } from "react-toastify";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "../../Components/Loader/Loader";
 
 const Adopt = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
-  const [adoptionPosts, setAdoptionPosts] = useState([]);
+  const queryClient = useQueryClient();
+
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [availability, setAvailability] = useState("available");
+
   const [favorites, setFavorites] = useState([]);
 
-  const fetchPosts = async () => {
-    const { data } = await axiosSecure.get(
-      `/adoption-posts?search=${search}&type=${type}&availability=${availability}`
-    );
-    setAdoptionPosts(data);
-  };
+  // Fetch adoption posts with react-query
+  const {
+    data: adoptionPosts = [],
+    isLoading: postsLoading,
+    // refetch,
+  } = useQuery({
+    queryKey: ["adoptionPosts", search, type, availability],
+    queryFn: async () => {
+      const res = await axiosSecure.get(
+        `/adoption-posts?search=${search}&type=${type}&availability=${availability}`
+      );
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    fetchPosts();
-  }, [search, type, availability]);
+  // Fetch favorites
+  const { isLoading: favoritesLoading } = useQuery({
+    queryKey: ["favorites", user?.uid],
+    enabled: !!user,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/favorites/${user.uid}`);
+      setFavorites(res.data);
+      return res.data;
+    },
+  });
 
-const handleFavoriteToggle = async (postId) => {
-  if (!user) {
-    toast.error("You must be logged in to favorite a post.");
-    return;
-  }
-
-  const isFav = favorites.includes(postId);
-
-  try {
-    if (isFav) {
-      // Remove favorite
-      await axiosSecure.delete("/favorites", { data: { userId: user.uid, postId } });
-      setFavorites((prev) => prev.filter((id) => id !== postId));
-      toast.info("Removed from favorites.");
-    } else {
-      // Add favorite
-      await axiosSecure.post("/favorites", { userId: user.uid, postId });
-      setFavorites((prev) => [...prev, postId]);
-      toast.success("Added to favorites!");
+  const handleFavoriteToggle = async (postId) => {
+    if (!user) {
+      toast.error("You must be logged in to favorite a post.");
+      return;
     }
-  } catch (error) {
-    toast.error(error.response?.data?.error || "Failed to update favorites.");
-  }
-};
 
-// Fetch favorites on mount
-useEffect(() => {
-  if (!user) return;
-  const fetchFavorites = async () => {
+    const isFav = favorites.includes(postId);
+
     try {
-      const { data } = await axiosSecure.get(`/favorites/${user.uid}`);
-      setFavorites(data);
+      if (isFav) {
+        // Remove favorite
+        await axiosSecure.delete("/favorites", {
+          data: { userId: user.uid, postId },
+        });
+        setFavorites((prev) => prev.filter((id) => id !== postId));
+        toast.info("Removed from favorites.");
+      } else {
+        // Add favorite
+        await axiosSecure.post("/favorites", { userId: user.uid, postId });
+        setFavorites((prev) => [...prev, postId]);
+        toast.success("Added to favorites!");
+      }
+
+      // Refetch favorites if needed
+      queryClient.invalidateQueries(["favorites", user?.uid]);
     } catch (error) {
-      console.error("Failed to load favorites:", error);
+      toast.error(error.response?.data?.error || "Failed to update favorites.");
     }
   };
-  fetchFavorites();
-}, [user]);
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-center mb-6">Find Your Pawfect Match 🐾</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        Find Your Pawfect Match 🐾
+      </h1>
 
       {/* Search & Filters */}
       <div className="grid md:grid-cols-3 gap-4 mb-8">
@@ -99,12 +111,29 @@ useEffect(() => {
         </select>
       </div>
 
-      {/* Adoption Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {adoptionPosts.map((post) => <AdoptionCard post={post} favorites={favorites} handleFavoriteToggle={handleFavoriteToggle}></AdoptionCard> )}
-      </div>
+      {/* Loading State */}
+      {(postsLoading || favoritesLoading) && (
+        <div className="text-center my-10">
+          <Loader></Loader>
+        </div>
+      )}
 
-      {adoptionPosts.length === 0 && (
+      {/* Adoption Cards */}
+      {!postsLoading && adoptionPosts.length > 0 && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {adoptionPosts.map((post) => (
+            <AdoptionCard
+              key={post._id}
+              post={post}
+              favorites={favorites}
+              handleFavoriteToggle={handleFavoriteToggle}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* No Data */}
+      {!postsLoading && adoptionPosts.length === 0 && (
         <div className="text-center mt-10">
           <img
             src="https://i.ibb.co/FW9sKBr/no-data.png"
