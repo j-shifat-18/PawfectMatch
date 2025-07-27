@@ -13,11 +13,13 @@ import CreatePetAccount from "../Pages/CreatePetAccount/CreatePetAccount";
 import UserProtectedRoute from "../Routes/UserProtectedRoute";
 import MyPets from "../Pages/MyPets/MyPets";
 import CreateAdoptionPost from "../Pages/CreateAdoptionPost/CreateAdoptionPost";
+import ErrorPage from "../Components/Error/ErrorPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout></RootLayout>,
+    errorElement:<ErrorPage></ErrorPage>,
     children: [
       {
         index: true,
@@ -41,6 +43,7 @@ export const router = createBrowserRouter([
   {
     path: "/auth",
     element: <AuthLayout></AuthLayout>,
+    errorElement:<ErrorPage></ErrorPage>,
     children: [
       {
         path: "login",
@@ -55,6 +58,7 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <DashboardLayout></DashboardLayout>,
+    errorElement:<ErrorPage></ErrorPage>,
     children: [
       {
         index: true,

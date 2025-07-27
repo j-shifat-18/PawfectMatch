@@ -18,7 +18,7 @@ const RootLayout = () => {
         }}
       />
 
-      {/* Your Content/Components */}
+      {/* Content/Components */}
       <header>
         <Navbar></Navbar>
         <div className="h-23"></div>

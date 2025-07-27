@@ -11,7 +11,7 @@ const DashboardWelcome = () => {
           {/* Dashboard icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-blue-600"
+            className="h-8 w-8 text-primary"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -29,11 +29,11 @@ const DashboardWelcome = () => {
         </div>
 
         <p className="text-lg text-gray-600">
-          Welcome to your dashboard panel. From here, you can manage apartments, monitor payments, create coupons, and access everything you need to streamline your work.
+          Welcome to your dashboard panel! From here, you can create and manage pet profiles, view your listed pets, post pets for adoption, explore and purchase pet accessories, and securely manage all your payments — everything you need for a smooth and loving pet adoption journey.
         </p>
 
         <Link to="/">
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition">
+          <button className="bg-primary text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition">
             Go to Home Page
           </button>
         </Link>

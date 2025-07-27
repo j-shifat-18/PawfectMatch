@@ -17,6 +17,7 @@ import {
 import useAuth from "../../Hooks/useAuth";
 import Loader from "../../Components/Loader/Loader";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import PawfectMatchLogo from "../../Components/PawfectMatchLogo/PawfectMatchLogo";
 
 const DashboardLayout = () => {
   const { user } = useAuth();
@@ -34,57 +35,75 @@ const DashboardLayout = () => {
 
   const linkClass = ({ isActive }) =>
     `flex items-center gap-2 px-2 py-2 rounded-lg ${
-      isActive ? "bg-blue-300" : ""
+      isActive ? "bg-secondary" : ""
     }`;
 
   return (
-    <div className="drawer lg:drawer-open">
-      {/* Drawer Toggle Button (Visible on small/medium) */}
-      <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
+    <div className="min-h-screen w-full relative bg-white">
+      {/* Soft Yellow Glow */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+      radial-gradient(circle at center, #FFB347 0%, transparent 50%)
+    `,
+          opacity: 0.6,
+          mixBlendMode: "multiply",
+        }}
+      />
 
-      <div className="drawer-content flex flex-col">
-        {/* Top Navbar */}
-        <div className="w-full p-4 bg-base-200 flex justify-between items-center lg:hidden">
-          <label htmlFor="dashboard-drawer" className="btn btn-ghost text-xl">
-            <FaBars />
-          </label>
-          <h2 className="text-lg font-bold">Dashboard</h2>
+      {/* Content/Components */}
+      <div className="drawer lg:drawer-open">
+        {/* Drawer Toggle Button (Visible on small/medium) */}
+        <input
+          id="dashboard-drawer"
+          type="checkbox"
+          className="drawer-toggle"
+        />
+
+        <div className="drawer-content flex flex-col">
+          {/* Top Navbar */}
+          <div className="w-full p-4 bg-base-200 flex justify-between items-center lg:hidden">
+            <label htmlFor="dashboard-drawer" className="btn btn-ghost text-xl">
+              <FaBars />
+            </label>
+            <h2 className="text-lg font-bold">Dashboard</h2>
+          </div>
+
+          {/* Main Content */}
+          <div className="p-4">
+            <Outlet />
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="p-4">
-          <Outlet />
-        </div>
-      </div>
+        {/* Side Drawer */}
+        <div className="drawer-side">
+          <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
+          <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content text-xl">
+            <div className="mb-5"><PawfectMatchLogo></PawfectMatchLogo></div>
 
-      {/* Side Drawer */}
-      <div className="drawer-side">
-        <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content text-xl">
-          <div className="mb-5">{/* <SkyTowerLogo /> */}</div>
+            {/* User navigation */}
+            {userRole?.role === "user" && (
+              <>
+                <li>
+                  <NavLink
+                    to="/dashboard/create-pet-account"
+                    className={linkClass}
+                  >
+                    <Cat className="w-5 h-5" />
+                    Create Pet Account
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/my-pets" className={linkClass}>
+                    <FaPaw className="w-5 h-5" />
+                    My Pets
+                  </NavLink>
+                </li>
+              </>
+            )}
 
-          {/* User navigation */}
-          {userRole?.role === "user" && (
-            <>
-              <li>
-                <NavLink
-                  to="/dashboard/create-pet-account"
-                  className={linkClass}
-                >
-                  <Cat className="w-5 h-5" />
-                  Create Pet Account
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/dashboard/my-pets" className={linkClass}>
-                  <FaPaw className="w-5 h-5" />
-                  My Pets
-                </NavLink>
-              </li>
-            </>
-          )}
-
-          {/* {userRole?.role === "member" && (
+            {/* {userRole?.role === "member" && (
             <>
               <li>
                 <NavLink to="/dashboard/make-payment" className={linkClass}>
@@ -101,7 +120,7 @@ const DashboardLayout = () => {
             </>
           )} */}
 
-          {/* Admin navigation
+            {/* Admin navigation
           {userRole?.role === "admin" && (
             <>
               <li>
@@ -143,15 +162,16 @@ const DashboardLayout = () => {
             </>
           )} */}
 
-          {/* Announcements (available to all roles) */}
-          {/* <li>
+            {/* Announcements (available to all roles) */}
+            {/* <li>
             <NavLink to="/dashboard/announcements" className={linkClass}>
               <Megaphone className="w-5 h-5" />
               Announcements
             </NavLink>
           </li> */}
-        </ul>
-      </div>
+          </ul>
+        </div>
+      </div>z
     </div>
   );
 };
