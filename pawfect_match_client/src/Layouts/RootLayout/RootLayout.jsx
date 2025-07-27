@@ -23,7 +23,7 @@ const RootLayout = () => {
         <Navbar></Navbar>
         <div className="h-23"></div>
       </header>
-      <main className="">
+      <main>
         <Outlet></Outlet>
       </main>
       <footer>
