@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Link } from "react-router";
@@ -20,11 +20,13 @@ const Adopt = () => {
 
   const [favorites, setFavorites] = useState([]);
 
+  // Map of petId to true if requested
+  const [requestedMap, setRequestedMap] = useState({});
+
   // Fetch adoption posts with react-query
   const {
     data: adoptionPosts = [],
     isLoading: postsLoading,
-    // refetch,
   } = useQuery({
     queryKey: ["adoptionPosts", search, type, availability],
     queryFn: async () => {
@@ -45,6 +47,27 @@ const Adopt = () => {
       return res.data;
     },
   });
+
+  // Fetch user adoption requests to persist request state
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const fetchRequests = async () => {
+      try {
+        const res = await axiosSecure.get(`/my-adoption-requests/${user.email}`);
+        // Build map { petId: true }
+        const map = {};
+        res.data.forEach((req) => {
+          map[req.petId] = true;
+        });
+        setRequestedMap(map);
+      } catch (error) {
+        console.error("Failed to load adoption requests:", error);
+      }
+    };
+
+    fetchRequests();
+  }, [user, axiosSecure]);
 
   const handleFavoriteToggle = async (postId) => {
     if (!user) {
@@ -74,6 +97,11 @@ const Adopt = () => {
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to update favorites.");
     }
+  };
+
+  // Handle adoption request toggle for specific pet
+  const handleAdoptionRequested = (petId) => {
+    setRequestedMap((prev) => ({ ...prev, [petId]: true }));
   };
 
   return (
@@ -114,7 +142,7 @@ const Adopt = () => {
       {/* Loading State */}
       {(postsLoading || favoritesLoading) && (
         <div className="text-center my-10">
-          <Loader></Loader>
+          <Loader />
         </div>
       )}
 
@@ -127,6 +155,8 @@ const Adopt = () => {
               post={post}
               favorites={favorites}
               handleFavoriteToggle={handleFavoriteToggle}
+              isAlreadyRequested={requestedMap[post.petId] || false}
+              setIsAlreadyRequested={() => handleAdoptionRequested(post.petId)}
             />
           ))}
         </div>

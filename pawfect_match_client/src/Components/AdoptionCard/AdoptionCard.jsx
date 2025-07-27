@@ -1,10 +1,14 @@
 import { Link } from "react-router";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { motion } from "framer-motion";
+import useAuth from "../../Hooks/useAuth";
+import { toast } from "react-toastify";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
-const AdoptionCard = ({ post, favorites, handleFavoriteToggle }) => {
+const AdoptionCard = ({ post, favorites, handleFavoriteToggle ,setIsAlreadyRequested , isAlreadyRequested }) => {
   const { petInfo = {} } = post;
-
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   const availabilityBadge = petInfo.isListedForAdoption ? (
     <div className="badge badge-success text-white bg-gradient-to-r from-green-400 to-teal-500 border-0">
@@ -15,6 +19,28 @@ const AdoptionCard = ({ post, favorites, handleFavoriteToggle }) => {
       Not Available
     </div>
   );
+
+  const handleAdoptionRequest = async () => {
+  const adoptionRequest = {
+    petId: post.petId,
+    petName: post.petInfo.name,
+    ownerEmail: post.ownerEmail,
+    requestedBy: {
+      name: user.displayName,
+      email: user.email,
+      userId: user.uid,
+    },
+  };
+
+  try {
+    await axiosSecure.post("/adoption-requests", adoptionRequest);
+    toast.success("Adoption request sent!");
+    setIsAlreadyRequested();  // <-- call function from parent to update state per pet
+  } catch (error) {
+    toast.error("Failed to send request.");
+  }
+};
+
 
   return (
     <motion.div
@@ -81,9 +107,17 @@ const AdoptionCard = ({ post, favorites, handleFavoriteToggle }) => {
           {availabilityBadge}
         </div>
 
+        <button
+          onClick={handleAdoptionRequest}
+          disabled={isAlreadyRequested}
+          className="btn bg-gradient-to-r from-cyan-400 to-blue-500 btn-sm px-6 py-2 rounded-full font-semibold hover:bg-gradient-to-l hover:from-cyan-400 hover:to-blue-500 text-white text-base transition-colors"
+        >
+          {isAlreadyRequested ? "Request Sent" : "Request to Adopt"}
+        </button>
+
         <Link
           to={`/message-owner/${post.ownerEmail}`}
-          className="btn btn-primary btn-sm px-6 py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
+          className="btn btn-primary text-base btn-sm px-6 py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
         >
           Message Owner
         </Link>

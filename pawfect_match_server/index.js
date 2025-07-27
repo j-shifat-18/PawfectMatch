@@ -67,7 +67,12 @@ async function run() {
 
     const usersCollection = client.db("pawfect_match").collection("users");
     const petsCollection = client.db("pawfect_match").collection("pets");
-    const favoritesCollection = client.db("pawfect_match").collection("favourites");
+    const adoptionRequestsCollection = client
+      .db("pawfect_match")
+      .collection("adoption-requests");
+    const favoritesCollection = client
+      .db("pawfect_match")
+      .collection("favourites");
     const adoptionPostsCollection = client
       .db("pawfect_match")
       .collection("adoption-posts");
@@ -348,6 +353,40 @@ async function run() {
         console.error(error);
         res.status(500).json({ error: "Server error" });
       }
+    });
+
+    // adoption requests
+    // GET /adoption-requests/:email ->owner
+    app.get("/adoption-requests/:email", async (req, res) => {
+      const email = req.params.email;
+      const requests = await adoptionRequestsCollection
+        .find({ ownerEmail: email })
+        .toArray();
+      res.send(requests);
+    });
+
+    // GET /my-adoption-requests/:email ->current user
+    // GET /my-adoption-requests/:email
+    app.get("/my-adoption-requests/:email", async (req, res) => {
+      const email = req.params.email;
+      try {
+        const requests = await adoptionRequestsCollection
+          .find({ "requestedBy.email": email }) // <-- nested field match
+          .toArray();
+        res.send(requests);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch requests", error });
+      }
+    });
+
+    //post//adoption-requests
+    app.post("/adoption-requests", async (req, res) => {
+      const request = req.body;
+      request.status = "pending";
+      request.requestedAt = new Date();
+
+      const result = await adoptionRequestsCollection.insertOne(request);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
