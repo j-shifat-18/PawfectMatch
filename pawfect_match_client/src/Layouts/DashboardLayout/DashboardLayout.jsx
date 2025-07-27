@@ -100,6 +100,12 @@ const DashboardLayout = () => {
                     My Pets
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink to="/dashboard/adoption-requests" className={linkClass}>
+                    <FaPaw className="w-5 h-5" />
+                    Adoption Requests
+                  </NavLink>
+                </li>
               </>
             )}
 

@@ -14,12 +14,13 @@ import UserProtectedRoute from "../Routes/UserProtectedRoute";
 import MyPets from "../Pages/MyPets/MyPets";
 import CreateAdoptionPost from "../Pages/CreateAdoptionPost/CreateAdoptionPost";
 import ErrorPage from "../Components/Error/ErrorPage";
+import AdoptionRequests from "../Pages/AdoptionRequests/AdoptionRequests";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout></RootLayout>,
-    errorElement:<ErrorPage></ErrorPage>,
+    errorElement: <ErrorPage></ErrorPage>,
     children: [
       {
         index: true,
@@ -43,7 +44,7 @@ export const router = createBrowserRouter([
   {
     path: "/auth",
     element: <AuthLayout></AuthLayout>,
-    errorElement:<ErrorPage></ErrorPage>,
+    errorElement: <ErrorPage></ErrorPage>,
     children: [
       {
         path: "login",
@@ -58,7 +59,7 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <DashboardLayout></DashboardLayout>,
-    errorElement:<ErrorPage></ErrorPage>,
+    errorElement: <ErrorPage></ErrorPage>,
     children: [
       {
         index: true,
@@ -85,6 +86,14 @@ export const router = createBrowserRouter([
         element: (
           <UserProtectedRoute>
             <CreateAdoptionPost></CreateAdoptionPost>
+          </UserProtectedRoute>
+        ),
+      },
+      {
+        path: "adoption-requests",
+        element: (
+          <UserProtectedRoute>
+            <AdoptionRequests></AdoptionRequests>
           </UserProtectedRoute>
         ),
       },

@@ -224,6 +224,28 @@ async function run() {
       }
     });
 
+    // PATCH /pets/:id/transfer
+    // Body: { newOwnerEmail: string }
+    app.patch("/pets/:id/transfer", async (req, res) => {
+      const { id } = req.params;
+      const { newOwnerEmail } = req.body;
+
+      try {
+        const result = await petsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              ownerEmail: newOwnerEmail,
+              listed: false,
+            },
+          }
+        );
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: "Failed to transfer pet ownership" });
+      }
+    });
+
     // Adoption post
 
     app.get("/adoption-posts", async (req, res) => {
@@ -387,6 +409,25 @@ async function run() {
 
       const result = await adoptionRequestsCollection.insertOne(request);
       res.send(result);
+    });
+
+    // PATCH /adoption-requests/:id/status
+    // Body: { status: "accepted" | "rejected" }
+    app.patch("/adoption-requests/:id/status", async (req, res) => {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      try {
+        const result = await adoptionRequestsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: { status },
+          }
+        );
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: "Failed to update request status" });
+      }
     });
 
     // Send a ping to confirm a successful connection
