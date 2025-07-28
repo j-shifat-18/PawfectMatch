@@ -505,8 +505,9 @@ async function run() {
     app.post("/orders", async (req, res) => {
       const { productId, buyerEmail, price } = req.body;
 
-      const product = await productsCollection
-        .findOne({ _id: new ObjectId(productId) });
+      const product = await productsCollection.findOne({
+        _id: new ObjectId(productId),
+      });
 
       if (!product) {
         return res.status(404).send({ message: "Product not found" });
@@ -524,6 +525,27 @@ async function run() {
 
       const result = await ordersCollection.insertOne(order);
       res.send(result);
+    });
+
+    // cart
+    // Get all unpaid orders for a specific user
+    app.get("/cart", async (req, res) => {
+      try {
+        const { email } = req.query;
+
+        if (!email) {
+          return res.status(400).send({ message: "Email is required" });
+        }
+
+        const cartItems = await ordersCollection
+          .find({ buyerEmail: email, payment_status: "pending" })
+          .toArray();
+
+        res.send(cartItems);
+      } catch (error) {
+        console.error("Error fetching cart items:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
     });
 
     // Send a ping to confirm a successful connection

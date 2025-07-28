@@ -73,6 +73,13 @@ const Navbar = () => {
                   {user.displayName || user.email}
                 </div>
                 <Link
+                  to="/order/cart"
+                  className="px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Cart
+                </Link>
+                <Link
                   to="/dashboard"
                   className="px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
                   onClick={() => setDropdownOpen(false)}

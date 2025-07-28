@@ -23,6 +23,7 @@ import OrderRequests from "../Pages/OrderRequests/OrderRequests";
 import ManageCoupons from "../Pages/ManageCoupons/ManageCoupons";
 import ManageUsers from "../Pages/ManageUsers/ManageUsers";
 import AddProduct from "../Pages/AddProduct/AddProduct";
+import Cart from "../Pages/Cart/Cart";
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +47,14 @@ export const router = createBrowserRouter([
       {
         path: "favourites",
         element: <Favourites></Favourites>,
+      },
+      {
+        path: "order/cart",
+        element: (
+          <UserProtectedRoute>
+            <Cart></Cart>
+          </UserProtectedRoute>
+        ),
       },
     ],
   },
