@@ -57,7 +57,7 @@ const UserProfile = () => {
         formData.append("image", imageFile);
 
         const uploadRes = await fetch(
-          `https://api.imgbb.com/1/upload?key=YOUR_IMGBB_API_KEY`,
+          `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_UPLOAD_KEY}`,
           {
             method: "POST",
             body: formData,
@@ -73,7 +73,7 @@ const UserProfile = () => {
         photoURL,
       };
 
-      await axiosSecure.patch(`/users/${profileUser._id}`, updatedData);
+      await axiosSecure.patch(`/users/${profileUser.email}`, updatedData);
       Swal.fire("Updated!", "Profile updated successfully", "success");
       refetchUser();
       setIsEditing(false);

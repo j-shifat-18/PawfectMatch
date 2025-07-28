@@ -13,6 +13,7 @@ import {
   ReceiptText,
   UserCircle,
   Cat,
+  UserPen,
 } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
 import Loader from "../../Components/Loader/Loader";
@@ -85,6 +86,15 @@ const DashboardLayout = () => {
             {/* User navigation */}
             {userRole?.role === "user" && (
               <>
+                <li>
+                  <NavLink
+                    to={`/dashboard/my-profile/${user.email}`}
+                    className={linkClass}
+                  >
+                    <UserPen className="w-5 h-5"/>
+                    My Profile
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/dashboard/create-pet-account"

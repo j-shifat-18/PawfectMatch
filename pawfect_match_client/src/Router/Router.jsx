@@ -100,7 +100,19 @@ export const router = createBrowserRouter([
       },
       {
         path: "profile/:email",
-        element:<UserProfile></UserProfile>,
+        element: (
+          <UserProtectedRoute>
+            <UserProfile></UserProfile>
+          </UserProtectedRoute>
+        ),
+      },
+      {
+        path: "my-profile/:email",
+        element: (
+          <UserProtectedRoute>
+            <UserProfile></UserProfile>
+          </UserProtectedRoute>
+        ),
       },
     ],
   },
