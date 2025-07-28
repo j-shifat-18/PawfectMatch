@@ -52,7 +52,6 @@ const DashboardLayout = () => {
           mixBlendMode: "multiply",
         }}
       />
-
       {/* Content/Components */}
       <div className="drawer lg:drawer-open">
         {/* Drawer Toggle Button (Visible on small/medium) */}
@@ -81,17 +80,19 @@ const DashboardLayout = () => {
         <div className="drawer-side">
           <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
           <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content text-xl">
-            <div className="mb-5"><PawfectMatchLogo></PawfectMatchLogo></div>
+            <div className="mb-5">
+              <PawfectMatchLogo></PawfectMatchLogo>
+            </div>
 
             {/* User navigation */}
-            {userRole?.role === "user" && (
+            {userRole?.role === "admin" && (
               <>
                 <li>
                   <NavLink
                     to={`/dashboard/my-profile/${user.email}`}
                     className={linkClass}
                   >
-                    <UserPen className="w-5 h-5"/>
+                    <UserPen className="w-5 h-5" />
                     My Profile
                   </NavLink>
                 </li>
@@ -111,7 +112,10 @@ const DashboardLayout = () => {
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/dashboard/adoption-requests" className={linkClass}>
+                  <NavLink
+                    to="/dashboard/adoption-requests"
+                    className={linkClass}
+                  >
                     <FaPaw className="w-5 h-5" />
                     Adoption Requests
                   </NavLink>
@@ -136,7 +140,7 @@ const DashboardLayout = () => {
             </>
           )} */}
 
-            {/* Admin navigation
+           {/* Admin navigation */}
           {userRole?.role === "admin" && (
             <>
               <li>
@@ -146,12 +150,12 @@ const DashboardLayout = () => {
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/dashboard/manage-members" className={linkClass}>
+                <NavLink to="/dashboard/manage-users" className={linkClass}>
                   <Users className="w-5 h-5" />
-                  Manage Members
+                  Manage Users
                 </NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink
                   to="/dashboard/make-announcement"
                   className={linkClass}
@@ -159,14 +163,14 @@ const DashboardLayout = () => {
                   <Megaphone className="w-5 h-5" />
                   Make Announcements
                 </NavLink>
-              </li>
+              </li> */}
               <li>
                 <NavLink
-                  to="/dashboard/agreement-requests"
+                  to="/dashboard/order-requests"
                   className={linkClass}
                 >
                   <FileSignature className="w-5 h-5" />
-                  Agreement Requests
+                  Order Requests
                 </NavLink>
               </li>
               <li>
@@ -176,7 +180,7 @@ const DashboardLayout = () => {
                 </NavLink>
               </li>
             </>
-          )} */}
+          )}
 
             {/* Announcements (available to all roles) */}
             {/* <li>
@@ -187,7 +191,8 @@ const DashboardLayout = () => {
           </li> */}
           </ul>
         </div>
-      </div>z
+      </div>
+      z
     </div>
   );
 };

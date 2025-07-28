@@ -16,6 +16,12 @@ import CreateAdoptionPost from "../Pages/CreateAdoptionPost/CreateAdoptionPost";
 import ErrorPage from "../Components/Error/ErrorPage";
 import AdoptionRequests from "../Pages/AdoptionRequests/AdoptionRequests";
 import UserProfile from "../Pages/UserProfile/UserProfile";
+import AdminProfile from "../Pages/AdminProfile/AdminProfile";
+import AdminProtectedRoutes from "../Routes/AdminProtectedRoutes";
+import ManageMembers from "../Pages/ManageMembers/ManageMembers";
+import OrderRequests from "../Pages/OrderRequests/OrderRequests";
+import ManageCoupons from "../Pages/ManageCoupons/ManageCoupons";
+import ManageUsers from "../Pages/ManageUsers/ManageUsers";
 
 export const router = createBrowserRouter([
   {
@@ -112,6 +118,38 @@ export const router = createBrowserRouter([
           <UserProtectedRoute>
             <UserProfile></UserProfile>
           </UserProtectedRoute>
+        ),
+      },
+      {
+        path: "admin-profile",
+        element: (
+          <AdminProtectedRoutes>
+            <AdminProfile></AdminProfile>
+          </AdminProtectedRoutes>
+        ),
+      },
+      {
+        path: "manage-users",
+        element: (
+          <AdminProtectedRoutes>
+            <ManageUsers></ManageUsers>
+          </AdminProtectedRoutes>
+        ),
+      },
+      {
+        path: "order-requests",
+        element: (
+          <AdminProtectedRoutes>
+            <OrderRequests></OrderRequests>
+          </AdminProtectedRoutes>
+        ),
+      },
+      {
+        path: "manage-coupons",
+        element: (
+          <AdminProtectedRoutes>
+            <ManageCoupons></ManageCoupons>
+          </AdminProtectedRoutes>
         ),
       },
     ],

@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../Components/Loader/Loader";
+import emptySvg from '../../assets/empty-pets.svg'
 
 const Adopt = () => {
   const axiosSecure = useAxiosSecure();
@@ -166,7 +167,7 @@ const Adopt = () => {
       {!postsLoading && adoptionPosts.length === 0 && (
         <div className="text-center mt-10">
           <img
-            src="https://i.ibb.co/FW9sKBr/no-data.png"
+            src={emptySvg}
             alt="No Results"
             className="mx-auto w-52"
           />

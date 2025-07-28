@@ -10,7 +10,7 @@ import { FaDog } from "react-icons/fa";
 
 const UserProfile = () => {
   const { email: profileEmail } = useParams();
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const isOwnProfile = user?.email === profileEmail;
   const axiosSecure = useAxiosSecure();
   const [isEditing, setIsEditing] = useState(false);
@@ -57,7 +57,9 @@ const UserProfile = () => {
         formData.append("image", imageFile);
 
         const uploadRes = await fetch(
-          `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_UPLOAD_KEY}`,
+          `https://api.imgbb.com/1/upload?key=${
+            import.meta.env.VITE_IMAGE_UPLOAD_KEY
+          }`,
           {
             method: "POST",
             body: formData,
@@ -74,7 +76,21 @@ const UserProfile = () => {
       };
 
       await axiosSecure.patch(`/users/${profileUser.email}`, updatedData);
-      Swal.fire("Updated!", "Profile updated successfully", "success");
+
+      updateUserProfile({
+        displayName: data.name,
+        photoURL: photoURL,
+      })
+        .then(() => {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Profile updated successfully",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        })
+        .catch((error) => console.log("error ", error));
       refetchUser();
       setIsEditing(false);
     } catch (error) {
@@ -126,10 +142,13 @@ const UserProfile = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn btn-success"
+                className="btn bg-blue-400 text-white hover:bg-blue-300"
               >
                 Save
               </button>
+              {
+                isSubmitting && <p className="text-blue-400">Profile is updating ! Please wait some moment.</p>
+              }
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
@@ -149,7 +168,7 @@ const UserProfile = () => {
               {isOwnProfile && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="btn btn-sm mt-2"
+                  className="btn btn-sm mt-2 bg-primary text-white rounded-full hover:bg-secondary border-none"
                 >
                   Edit Profile
                 </button>
@@ -201,11 +220,12 @@ const UserProfile = () => {
                   <span className="font-medium">Age:</span> {pet.age} yrs
                 </p>
                 <p>
-                  <span className="font-medium">Color:</span> {pet.color || "N/A"}
+                  <span className="font-medium">Color:</span>{" "}
+                  {pet.color || "N/A"}
                 </p>
                 <p>
-                  <span className="font-medium">Weight:</span> {pet.weight || "N/A"}{" "}
-                  kg
+                  <span className="font-medium">Weight:</span>{" "}
+                  {pet.weight || "N/A"} kg
                 </p>
               </div>
 

@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Navigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../Hooks/useAxiosSecure";
