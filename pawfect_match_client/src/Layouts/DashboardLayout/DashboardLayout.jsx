@@ -14,6 +14,7 @@ import {
   UserCircle,
   Cat,
   UserPen,
+  FolderPlus,
 } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
 import Loader from "../../Components/Loader/Loader";
@@ -164,6 +165,15 @@ const DashboardLayout = () => {
                   Make Announcements
                 </NavLink>
               </li> */}
+              <li>
+                <NavLink
+                  to="/dashboard/add-product"
+                  className={linkClass}
+                >
+                  <FolderPlus className="w-5 h-5"/>
+                  Add Product
+                </NavLink>
+              </li>
               <li>
                 <NavLink
                   to="/dashboard/order-requests"

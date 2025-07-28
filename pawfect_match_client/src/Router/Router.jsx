@@ -22,6 +22,7 @@ import ManageMembers from "../Pages/ManageMembers/ManageMembers";
 import OrderRequests from "../Pages/OrderRequests/OrderRequests";
 import ManageCoupons from "../Pages/ManageCoupons/ManageCoupons";
 import ManageUsers from "../Pages/ManageUsers/ManageUsers";
+import AddProduct from "../Pages/AddProduct/AddProduct";
 
 export const router = createBrowserRouter([
   {
@@ -149,6 +150,14 @@ export const router = createBrowserRouter([
         element: (
           <AdminProtectedRoutes>
             <ManageCoupons></ManageCoupons>
+          </AdminProtectedRoutes>
+        ),
+      },
+      {
+        path: "add-product",
+        element: (
+          <AdminProtectedRoutes>
+            <AddProduct></AddProduct>
           </AdminProtectedRoutes>
         ),
       },

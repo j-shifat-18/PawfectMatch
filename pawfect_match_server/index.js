@@ -67,6 +67,10 @@ async function run() {
 
     const usersCollection = client.db("pawfect_match").collection("users");
     const petsCollection = client.db("pawfect_match").collection("pets");
+    const ordersCollection = client.db("pawfect_match").collection("orders");
+    const productsCollection = client
+      .db("pawfect_match")
+      .collection("products");
     const adoptionRequestsCollection = client
       .db("pawfect_match")
       .collection("adoption-requests");
@@ -456,6 +460,71 @@ async function run() {
       } catch (err) {
         res.status(500).send({ error: "Failed to update request status" });
       }
+    });
+
+    // products
+    // POST /products
+
+    app.get("/products", async (req, res) => {
+      const { search = "", type = "", sort = "" } = req.query;
+      const query = {};
+
+      if (search) {
+        query.name = { $regex: search, $options: "i" };
+      }
+
+      if (type) {
+        query.type = { $regex: type, $options: "i" };
+      }
+
+      let cursor = productsCollection.find(query);
+
+      if (sort === "price_low_high") {
+        cursor = cursor.sort({ price: 1 });
+      } else if (sort === "price_high_low") {
+        cursor = cursor.sort({ price: -1 });
+      }
+
+      const products = await cursor.toArray();
+      res.send(products);
+    });
+
+    app.post("/products", async (req, res) => {
+      try {
+        const product = req.body;
+        product.createdAt = new Date(); // optional timestamp
+        const result = await productsCollection.insertOne(product);
+        res.send({ insertedId: result.insertedId });
+      } catch (error) {
+        console.error("Product upload error:", error);
+        res.status(500).send({ error: "Failed to upload product" });
+      }
+    });
+
+    // orders
+    app.post("/orders", async (req, res) => {
+      const { productId, buyerEmail, price } = req.body;
+
+      const product = await db
+        .collection("products")
+        .findOne({ _id: new ObjectId(productId) });
+
+      if (!product) {
+        return res.status(404).send({ message: "Product not found" });
+      }
+
+      const order = {
+        buyerEmail,
+        productId,
+        productName: product.name,
+        productImage: product.image,
+        price,
+        payment_status: "pending",
+        order_date: new Date(),
+      };
+
+      const result = await ordersCollection.insertOne(order);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection

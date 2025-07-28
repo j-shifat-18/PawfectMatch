@@ -57,7 +57,7 @@ const Navbar = () => {
             
             title="Login"
           >
-            <span aria-label="login" className="border-2 rounded-full border-primary  px-4 py-1 text-lg bg-primary hover:bg-secondary hover:border-secondary text-secondary-content hover:text-secondary-content transition-colors font-semibold">Login</span>
+            <span aria-label="login" className="border-2 rounded-full border-primary  px-4 py-1 text-lg bg-primary hover:bg-secondary hover:border-secondary  hover:text-secondary-content transition-colors font-semibold text-white">Login</span>
           </Link>
         ) : (
           <div ref={dropdownRef} className="relative">

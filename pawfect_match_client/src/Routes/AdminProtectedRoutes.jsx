@@ -20,7 +20,7 @@ const AdminProtectedRoutes = ({ children }) => {
   if (isLoading) return <Loader></Loader>;
 
   if (!user || userRole?.role !== 'admin') {
-    return <Navigate to="/login" state={location.pathname}></Navigate>;
+    return <Navigate to="/auth/login" state={location.pathname}></Navigate>;
   }
 
   return children;

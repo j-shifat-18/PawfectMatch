@@ -129,7 +129,7 @@ const ManageUsers = () => {
                       </button>
                     )}
                     <button
-                      className="btn btn-xs btn-outline btn-accent"
+                      className="btn btn-sm btn-outline btn-accent"
                       onClick={() => handleRoleToggle(user)}
                     >
                       {user.role === "admin" ? (
