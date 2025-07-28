@@ -24,6 +24,7 @@ import ManageCoupons from "../Pages/ManageCoupons/ManageCoupons";
 import ManageUsers from "../Pages/ManageUsers/ManageUsers";
 import AddProduct from "../Pages/AddProduct/AddProduct";
 import Cart from "../Pages/Cart/Cart";
+import CheckoutWrapper from "../Pages/Checkout/CheckoutWrapper";
 
 export const router = createBrowserRouter([
   {
@@ -53,6 +54,14 @@ export const router = createBrowserRouter([
         element: (
           <UserProtectedRoute>
             <Cart></Cart>
+          </UserProtectedRoute>
+        ),
+      },
+      {
+        path: "checkout/:id",
+        element: (
+          <UserProtectedRoute>
+            <CheckoutWrapper></CheckoutWrapper>
           </UserProtectedRoute>
         ),
       },

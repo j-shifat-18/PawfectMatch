@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -502,6 +503,13 @@ async function run() {
     });
 
     // orders
+
+    app.get("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await ordersCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
     app.post("/orders", async (req, res) => {
       const { productId, buyerEmail, price } = req.body;
 
@@ -527,6 +535,33 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/orders/paid/:id", async (req, res) => {
+      const orderId = req.params.id;
+
+      try {
+        const result = await ordersCollection.updateOne(
+          { _id: new ObjectId(orderId) },
+          {
+            $set: {
+              payment_status: "paid",
+              payment_date: new Date(), // Optional: Track when payment was made
+            },
+          }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .send({ message: "Order not found or already paid" });
+        }
+
+        res.send({ message: "Order marked as paid" });
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
+
     // cart
     // Get all unpaid orders for a specific user
     app.get("/cart", async (req, res) => {
@@ -546,6 +581,40 @@ async function run() {
         console.error("Error fetching cart items:", error);
         res.status(500).send({ message: "Internal Server Error" });
       }
+    });
+
+    // coupons
+    app.get("/coupons/:code", async (req, res) => {
+      const code = req.params.code;
+      const today = new Date();
+
+      const coupon = await db.collection("coupons").findOne({
+        code,
+        expireDate: { $gte: today },
+      });
+
+      if (!coupon) {
+        return res
+          .status(404)
+          .send({ valid: false, message: "Invalid or expired coupon" });
+      }
+
+      res.send({ valid: true, discount: coupon.discount });
+    });
+
+    // payment
+
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = Math.round(price * 100); // in cents
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({ clientSecret: paymentIntent.client_secret });
     });
 
     // Send a ping to confirm a successful connection
