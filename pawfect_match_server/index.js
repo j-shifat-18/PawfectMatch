@@ -505,8 +505,7 @@ async function run() {
     app.post("/orders", async (req, res) => {
       const { productId, buyerEmail, price } = req.body;
 
-      const product = await db
-        .collection("products")
+      const product = await productsCollection
         .findOne({ _id: new ObjectId(productId) });
 
       if (!product) {
