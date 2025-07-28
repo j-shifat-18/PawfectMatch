@@ -24,7 +24,7 @@ const MyPets = () => {
   const { data: pets = [], isLoading } = useQuery({
     queryKey: ["myPets", user?.uid],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/pets?ownerId=${user?.uid}`);
+      const res = await axiosSecure.get(`/pets?ownerEmail=${user?.email}`);
       return res.data;
     },
   });

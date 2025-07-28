@@ -44,6 +44,7 @@ const CreatePetAccount = () => {
       if (!imgData.success) throw new Error("Image upload failed");
 
       const petData = {
+        ownerEmail:user.email,
         ownerId: user.uid,
         name: data.name,
         type: data.type,

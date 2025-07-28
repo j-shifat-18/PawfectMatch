@@ -36,8 +36,9 @@ const Register = () => {
         // console.log(result.user);
 
         const userInfo = {
-          name:data.name,
+          name: data.name,
           email: data.email,
+          photoURL: profilePic,
           role: "user",
           created_at: new Date().toISOString(),
           last_log_in: new Date().toISOString(),
@@ -53,7 +54,14 @@ const Register = () => {
           photoURL: image,
         })
           .then(() => {
-            console.log("updated User Profile");
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Account created successfully",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            navigate("/");
           })
           .catch((error) => console.log("error ", error));
       })
@@ -68,7 +76,7 @@ const Register = () => {
         console.log(result);
         const user = result.user;
         const userInfo = {
-          name:user.displayName,
+          name: user.displayName,
           email: user.email,
           role: "user",
           created_at: new Date().toISOString(),
@@ -76,8 +84,6 @@ const Register = () => {
         };
 
         const userRes = await axiosPublic.post("/users", userInfo);
-        console.log(userRes);
-
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -85,7 +91,7 @@ const Register = () => {
           showConfirmButton: false,
           timer: 1500,
         });
-        navigate('/');
+        navigate("/");
       })
       .catch((error) => {
         console.log(error);

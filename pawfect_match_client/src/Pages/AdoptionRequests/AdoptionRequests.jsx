@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 const AdoptionRequests = () => {
   const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
 
   // Fetch incoming adoption requests for owner
   useEffect(() => {
@@ -121,15 +123,16 @@ const AdoptionRequests = () => {
                 <button
                   className="btn bg-gradient-to-r from-cyan-400 to-blue-500 btn-sm px-6 py-2 rounded-full font-semibold hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 text-white text-base transition-colors"
                   onClick={() => {
+                    navigate(`/dashboard/profile/${req.requestedBy.email}`)
                     // Placeholder: navigate to profile or open modal
-                    Swal.fire({
-                      position: "top-end",
-                      icon: "success",
-                      title: "Coming soon!Profile viewing not implemented",
-                      showConfirmButton: false,
-                      timer: 1500,
-                    });
-                    Swal.fire();
+                    // Swal.fire({
+                    //   position: "top-end",
+                    //   icon: "success",
+                    //   title: "Coming soon!Profile viewing not implemented",
+                    //   showConfirmButton: false,
+                    //   timer: 1500,
+                    // });
+                    // Swal.fire();
                   }}
                 >
                   Visit Profile

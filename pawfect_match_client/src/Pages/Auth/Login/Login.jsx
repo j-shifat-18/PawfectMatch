@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAuth from "../../../Hooks/useAuth";
 import { GrGoogle } from "react-icons/gr";
@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 const Login = () => {
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
+  const location = useLocation();
   const {
     register,
     handleSubmit,
@@ -68,7 +69,7 @@ const Login = () => {
           showConfirmButton: false,
           timer: 1500,
         });
-        navigate("/");
+        navigate(`${location.state ? location.state : "/"}`);
       })
       .catch((error) => {
         console.log(error);

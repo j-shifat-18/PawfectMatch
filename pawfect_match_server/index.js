@@ -136,13 +136,41 @@ async function run() {
       res.send(result);
     });
 
+    // PATCH /users/:email
+    app.patch("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const updatedData = req.body;
+
+      try {
+        const result = await usersCollection.updateOne(
+          { email },
+          { $set: updatedData }
+        );
+        res.send(result);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Failed to update user" });
+      }
+    });
+
     // pets
 
     // get all pets for a user
+    // app.get("/pets", async (req, res) => {
+    //   try {
+    //     const { ownerId } = req.query;
+    //     const pets = await petsCollection.find({ ownerId }).toArray();
+    //     res.json(pets);
+    //   } catch (err) {
+    //     console.error("Error fetching pets:", err);
+    //     res.status(500).json({ error: "Internal Server Error" });
+    //   }
+    // });
+
     app.get("/pets", async (req, res) => {
       try {
-        const { ownerId } = req.query;
-        const pets = await petsCollection.find({ ownerId }).toArray();
+        const { ownerEmail } = req.query;
+        const pets = await petsCollection.find({ ownerEmail }).toArray();
         res.json(pets);
       } catch (err) {
         console.error("Error fetching pets:", err);

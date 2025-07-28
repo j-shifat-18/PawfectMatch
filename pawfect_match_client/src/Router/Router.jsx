@@ -15,6 +15,7 @@ import MyPets from "../Pages/MyPets/MyPets";
 import CreateAdoptionPost from "../Pages/CreateAdoptionPost/CreateAdoptionPost";
 import ErrorPage from "../Components/Error/ErrorPage";
 import AdoptionRequests from "../Pages/AdoptionRequests/AdoptionRequests";
+import UserProfile from "../Pages/UserProfile/UserProfile";
 
 export const router = createBrowserRouter([
   {
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
             <AdoptionRequests></AdoptionRequests>
           </UserProtectedRoute>
         ),
+      },
+      {
+        path: "profile/:email",
+        element:<UserProfile></UserProfile>,
       },
     ],
   },

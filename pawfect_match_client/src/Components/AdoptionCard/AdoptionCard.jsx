@@ -1,14 +1,22 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { motion } from "framer-motion";
 import useAuth from "../../Hooks/useAuth";
 import { toast } from "react-toastify";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import Loader from "../Loader/Loader";
 
-const AdoptionCard = ({ post, favorites, handleFavoriteToggle ,setIsAlreadyRequested , isAlreadyRequested }) => {
+const AdoptionCard = ({
+  post,
+  favorites,
+  handleFavoriteToggle,
+  setIsAlreadyRequested,
+  isAlreadyRequested,
+}) => {
   const { petInfo = {} } = post;
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
 
   const availabilityBadge = petInfo.isListedForAdoption ? (
     <div className="badge badge-success text-white bg-gradient-to-r from-green-400 to-teal-500 border-0">
@@ -20,27 +28,29 @@ const AdoptionCard = ({ post, favorites, handleFavoriteToggle ,setIsAlreadyReque
     </div>
   );
 
+  if (loading) return <Loader></Loader>;
+
   const handleAdoptionRequest = async () => {
-  const adoptionRequest = {
-    petId: post.petId,
-    petName: post.petInfo.name,
-    ownerEmail: post.ownerEmail,
-    requestedBy: {
-      name: user.displayName,
-      email: user.email,
-      userId: user.uid,
-    },
+    if (!user) return navigate("/auth/login");
+    const adoptionRequest = {
+      petId: post.petId,
+      petName: post.petInfo.name,
+      ownerEmail: post.ownerEmail,
+      requestedBy: {
+        name: user.displayName,
+        email: user.email,
+        userId: user.uid,
+      },
+    };
+
+    try {
+      await axiosSecure.post("/adoption-requests", adoptionRequest);
+      toast.success("Adoption request sent!");
+      setIsAlreadyRequested(); // <-- call function from parent to update state per pet
+    } catch (error) {
+      toast.error("Failed to send request.");
+    }
   };
-
-  try {
-    await axiosSecure.post("/adoption-requests", adoptionRequest);
-    toast.success("Adoption request sent!");
-    setIsAlreadyRequested();  // <-- call function from parent to update state per pet
-  } catch (error) {
-    toast.error("Failed to send request.");
-  }
-};
-
 
   return (
     <motion.div
