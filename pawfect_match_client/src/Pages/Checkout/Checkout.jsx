@@ -74,7 +74,7 @@ const Checkout = () => {
       if (result.paymentIntent.status === "succeeded") {
         await axiosSecure.patch(`/orders/paid/${id}`);
         Swal.fire("Success", "Payment completed!", "success");
-        // navigate("/dashboard/payment-history");
+        navigate("/dashboard/my-orders");
       }
     }
   };
