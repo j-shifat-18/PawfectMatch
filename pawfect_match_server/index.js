@@ -19,6 +19,7 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const { validateCoupon } = require("./controllers/couponController");
 const { createAdoptionPost } = require("./controllers/adoptionController");
 
@@ -39,6 +40,9 @@ app.use(express.json());
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
+    server.listen(port, () => {
+      console.log(`Server with Socket.IO listening on port ${port}`);
+    });
   })
   .catch((error) => {
     console.error("Database connection failed:", error);
@@ -54,6 +58,7 @@ app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
 app.use("/coupons", couponRoutes);
 app.use("/cart", cartRoutes);
+app.use("/chat", chatRoutes);
 
 // Legacy coupon validation route for backward compatibility
 app.get("/validate-coupon/:code", validateCoupon);
@@ -80,6 +85,26 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-}); 
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+// Socket.IO logic
+io.on("connection", (socket) => {
+  // Join a room for the user's email
+  socket.on("join", (email) => {
+    socket.join(email);
+  });
+
+  // Handle sending a message
+  socket.on("send_message", (data) => {
+    // data: { fromEmail, toEmail, content, createdAt, read }
+    io.to(data.toEmail).emit("receive_message", data);
+  });
+});

@@ -26,6 +26,7 @@ import AddProduct from "../Pages/AddProduct/AddProduct";
 import Cart from "../Pages/Cart/Cart";
 import CheckoutWrapper from "../Pages/Checkout/CheckoutWrapper";
 import MyOrders from "../Pages/MyOrders/MyOrders";
+import Chat from "../Pages/Chat/Chat";
 
 export const router = createBrowserRouter([
   {
@@ -65,6 +66,10 @@ export const router = createBrowserRouter([
             <CheckoutWrapper></CheckoutWrapper>
           </UserProtectedRoute>
         ),
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
     ],
   },
