@@ -117,20 +117,23 @@ const AdoptionCard = ({
           {availabilityBadge}
         </div>
 
-        <button
-          onClick={handleAdoptionRequest}
-          disabled={isAlreadyRequested}
-          className="btn bg-gradient-to-r from-cyan-400 to-blue-500 btn-sm px-6 py-2 rounded-full font-semibold hover:bg-gradient-to-l hover:from-cyan-400 hover:to-blue-500 text-white text-base transition-colors"
-        >
-          {isAlreadyRequested ? "Request Sent" : "Request to Adopt"}
-        </button>
-
-        <Link
-          to={`/message-owner/${post.ownerEmail}`}
-          className="btn btn-primary text-base btn-sm px-6 py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
-        >
-          Message Owner
-        </Link>
+        <div className="flex items-center justify-between mt-4">
+          {post.ownerEmail && (
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mr-2"
+              onClick={() => navigate('/chat', { state: { recipientEmail: post.ownerEmail } })}
+            >
+              Message Owner
+            </button>
+          )}
+          <button
+            className={`bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg ${isAlreadyRequested ? 'opacity-60 cursor-not-allowed' : ''}`}
+            onClick={handleAdoptionRequest}
+            disabled={isAlreadyRequested}
+          >
+            {isAlreadyRequested ? 'Requested' : 'Request Adoption'}
+          </button>
+        </div>
       </div>
     </motion.div>
   );
