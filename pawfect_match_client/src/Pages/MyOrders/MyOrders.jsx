@@ -71,7 +71,7 @@ const MyOrders = () => {
                 </td>
                 <td>
                   <span className="badge badge-primary text-white">
-                    {order.transactionId?.slice(0, 15)}...
+                    {`${order.transactionId.slice(0, 4)}...${order.transactionId.slice(-6)}`}
                   </span>
                 </td>
               </tr>

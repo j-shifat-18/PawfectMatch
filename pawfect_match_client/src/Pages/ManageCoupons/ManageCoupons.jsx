@@ -86,7 +86,7 @@ const ManageCoupons = () => {
                 </td>
                 <td>
                   <button
-                    className="btn btn-sm btn-success"
+                    className="btn btn-sm btn-success text-white"
                     onClick={() =>
                       handleDateUpdate(
                         coupon._id,

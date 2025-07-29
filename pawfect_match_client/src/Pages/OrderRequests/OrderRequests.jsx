@@ -90,7 +90,7 @@ const OrderRequests = () => {
                   </td>
                   <td>{new Date(order.order_date).toLocaleDateString()}</td>
                   <td>{new Date(order.payment_date).toLocaleDateString()}</td>
-                  <td className="text-xs"><span className="bg-primary px-2 py-1 rounded-lg text-white">{order.transactionId}</span></td>
+                  <td className="text-xs"><span className="bg-primary px-2 py-1 rounded-lg text-white">{`${order.transactionId.slice(0, 4)}...${order.transactionId.slice(-6)}`}</span></td>
                   <td>
                     <span
                       className={`badge text-white ${

@@ -21,7 +21,7 @@ const RootLayout = () => {
       {/* Content/Components */}
       <header>
         <Navbar></Navbar>
-        <div className="h-23"></div>
+        <div className="h-20"></div>
       </header>
       <main>
         <Outlet></Outlet>

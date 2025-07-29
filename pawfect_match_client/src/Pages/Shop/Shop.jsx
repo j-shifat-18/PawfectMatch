@@ -42,7 +42,7 @@ const Shop = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center mb-8 text-orange-600">Shop Accessories</h1>
+      <h1 className="text-4xl font-bold text-center mb-8 ">Shop Accessories</h1>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

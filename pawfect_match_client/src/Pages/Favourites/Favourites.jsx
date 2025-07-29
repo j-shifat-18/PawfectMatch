@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Loader from "../../Components/Loader/Loader";
 import { Link } from "react-router-dom";
 import AdoptionCard from "../../Components/AdoptionCard/AdoptionCard";
+import { useEffect } from "react";
 
 const Favourites = () => {
   const axiosSecure = useAxiosSecure();
@@ -13,6 +14,8 @@ const Favourites = () => {
   const queryClient = useQueryClient();
 
   const [favorites, setFavorites] = useState([]);
+  const [requestedMap, setRequestedMap] = useState({});
+
 
   // Fetch favorite post IDs
   const {
@@ -44,6 +47,28 @@ const Favourites = () => {
     },
   });
 
+
+  // fetch adoption posts 
+    useEffect(() => {
+      if (!user?.email) return;
+  
+      const fetchRequests = async () => {
+        try {
+          const res = await axiosSecure.get(`/my-adoption-requests/${user.email}`);
+          // Build map { petId: true }
+          const map = {};
+          res.data.forEach((req) => {
+            map[req.petId] = true;
+          });
+          setRequestedMap(map);
+        } catch (error) {
+          console.error("Failed to load adoption requests:", error);
+        }
+      };
+  
+      fetchRequests();
+    }, [user, axiosSecure]);
+
   if (errorFavorites || errorPosts) {
     return (
       <div className="text-center py-10 text-red-500">
@@ -62,7 +87,8 @@ const Favourites = () => {
   }
 
   // Filter posts to only favorites
-  const favoritePosts = allPosts?.filter((post) => favoriteIds.includes(post._id)) || [];
+  const favoritePosts =
+    allPosts?.filter((post) => favoriteIds.includes(post._id)) || [];
 
   const handleFavoriteToggle = async (postId) => {
     if (!user) {
@@ -74,7 +100,9 @@ const Favourites = () => {
 
     try {
       if (isFav) {
-        await axiosSecure.delete("/favorites", { data: { userId: user.uid, postId } });
+        await axiosSecure.delete("/favorites", {
+          data: { userId: user.uid, postId },
+        });
         setFavorites((prev) => prev.filter((id) => id !== postId));
         toast.info("Removed from favorites.");
       } else {
@@ -86,6 +114,10 @@ const Favourites = () => {
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to update favorites.");
     }
+  };
+
+  const handleAdoptionRequested = (petId) => {
+    setRequestedMap((prev) => ({ ...prev, [petId]: true }));
   };
 
   // After loading finishes, if no favorites, show no data UI
@@ -114,7 +146,9 @@ const Favourites = () => {
   // Otherwise show favorite posts
   return (
     <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-center mb-6">Favorite Furry Friends 🐾</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        Favorite Furry Friends 🐾
+      </h1>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {favoritePosts.map((post) => (
           <AdoptionCard
@@ -122,6 +156,8 @@ const Favourites = () => {
             post={post}
             favorites={favorites}
             handleFavoriteToggle={handleFavoriteToggle}
+            isAlreadyRequested={requestedMap[post.petId] || false}
+            setIsAlreadyRequested={() => handleAdoptionRequested(post.petId)}
           />
         ))}
       </div>

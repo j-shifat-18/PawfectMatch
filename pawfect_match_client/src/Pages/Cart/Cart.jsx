@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import { Link } from "react-router";
+import Loader from "../../Components/Loader/Loader";
 
 const Cart = () => {
   const { user } = useAuth();
@@ -25,7 +26,7 @@ const Cart = () => {
   }, [user?.email, axiosSecure]);
 
   if (loading) {
-    return <div className="text-center py-10">Loading cart items...</div>;
+    return <Loader></Loader>;
   }
 
   return (
