@@ -104,8 +104,8 @@ const ManageUsers = () => {
                 <td className="font-medium">{user.name}</td>
                 <td>{user.email}</td>
                 <td>
-                  <span
-                    className={`badge ${
+                  <p
+                    className={`badge p-3 text-white ${
                       user.role === "admin"
                         ? "badge-success"
                         : user.role === "blocked"
@@ -114,7 +114,7 @@ const ManageUsers = () => {
                     }`}
                   >
                     {user.role}
-                  </span>
+                  </p>
                 </td>
                 <td>{new Date(user.created_at).toLocaleString()}</td>
                 <td>{new Date(user.last_log_in).toLocaleString()}</td>
@@ -122,14 +122,14 @@ const ManageUsers = () => {
                   <div className="flex items-center gap-2 justify-center">
                     {user.role !== "blocked" && (
                       <button
-                        className="btn btn-xs btn-outline btn-error"
+                        className="btn rounded-full btn-outline btn-error hover:text-white"
                         onClick={() => handleBlockUser(user)}
                       >
                         <FaUserTimes /> Block
                       </button>
                     )}
                     <button
-                      className="btn btn-sm btn-outline btn-accent"
+                      className="btn btn-outline rounded-full btn-primary "
                       onClick={() => handleRoleToggle(user)}
                     >
                       {user.role === "admin" ? (

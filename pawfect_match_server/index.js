@@ -4,7 +4,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { v4: uuidv4 } = require('uuid'); // uuid for unique ID
+const { v4: uuidv4 } = require("uuid"); // uuid for unique ID
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -551,6 +551,7 @@ async function run() {
         productImage: product.image,
         price,
         payment_status: "pending",
+        delivery_status: "pending",
         order_date: new Date(),
       };
 
@@ -585,6 +586,27 @@ async function run() {
       } catch (err) {
         console.error(err);
         res.status(500).send({ message: "Internal server error" });
+      }
+    });
+
+    // Update delivery status
+    app.patch("/orders/:id", async (req, res) => {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!["delivered", "rejected"].includes(status)) {
+        return res.status(400).send({ message: "Invalid status" });
+      }
+
+      const result = await ordersCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { delivery_status: status } }
+      );
+
+      if (result.modifiedCount === 1) {
+        res.send({ message: "Delivery status updated", status });
+      } else {
+        res.status(404).send({ message: "Order not found" });
       }
     });
 
