@@ -90,10 +90,10 @@ const OrderRequests = () => {
                   </td>
                   <td>{new Date(order.order_date).toLocaleDateString()}</td>
                   <td>{new Date(order.payment_date).toLocaleDateString()}</td>
-                  <td className="text-xs"><span className="bg-primary p-2 rounded-xl text-white">{order.transactionId}</span></td>
+                  <td className="text-xs"><span className="bg-primary px-2 py-1 rounded-lg text-white">{order.transactionId}</span></td>
                   <td>
                     <span
-                      className={`badge ${
+                      className={`badge text-white ${
                         order.delivery_status === "delivered"
                           ? "badge-success"
                           : order.delivery_status === "rejected"

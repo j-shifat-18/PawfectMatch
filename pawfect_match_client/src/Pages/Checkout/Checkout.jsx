@@ -4,6 +4,7 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 const Checkout = () => {
   const { id } = useParams();
@@ -41,11 +42,15 @@ const Checkout = () => {
       .then((res) => {
         if (res.data.valid) {
           setDiscountPercent(res.data.discount);
-          Swal.fire("Success", `Coupon applied: ${res.data.discount}% off`, "success");
+          toast.success(`Coupon applied: ${res.data.discount}% off`);
         }
       })
       .catch((err) => {
-        Swal.fire("Error", err.response?.data?.message || "Invalid coupon", "error");
+        Swal.fire(
+          "Error",
+          err.response?.data?.message || "Invalid coupon",
+          "error"
+        );
       });
   };
 
@@ -85,7 +90,9 @@ const Checkout = () => {
       <p className="mb-2">Product: {order.productName}</p>
       <p className="mb-2">Original Price: ${order.price.toFixed(2)}</p>
       {discountPercent > 0 && (
-        <p className="mb-2 text-green-600">Discount Applied: {discountPercent}%</p>
+        <p className="mb-2 text-green-600">
+          Discount Applied: {discountPercent}%
+        </p>
       )}
       <p className="mb-4 font-bold">Total: ${finalPrice.toFixed(2)}</p>
 
@@ -105,7 +112,11 @@ const Checkout = () => {
       <form onSubmit={handleSubmit}>
         <CardElement className="border p-4 rounded-md" />
         {error && <p className="text-red-500 mt-2">{error}</p>}
-        <button className="btn btn-primary mt-4 w-full" type="submit" disabled={!stripe || !clientSecret}>
+        <button
+          className="btn btn-primary mt-4 w-full"
+          type="submit"
+          disabled={!stripe || !clientSecret}
+        >
           Pay ${finalPrice.toFixed(2)}
         </button>
       </form>

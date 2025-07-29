@@ -70,6 +70,7 @@ async function run() {
     const usersCollection = client.db("pawfect_match").collection("users");
     const petsCollection = client.db("pawfect_match").collection("pets");
     const ordersCollection = client.db("pawfect_match").collection("orders");
+    const couponsCollection = client.db("pawfect_match").collection("coupons");
     const productsCollection = client
       .db("pawfect_match")
       .collection("products");
@@ -663,6 +664,84 @@ async function run() {
       });
 
       res.send({ clientSecret: paymentIntent.client_secret });
+    });
+
+    // coupons
+
+    // Backend API: Validate a coupon by code
+    app.get("/validate-coupon/:code", async (req, res) => {
+      const { code } = req.params;
+
+      try {
+        const coupon = await couponsCollection.findOne({ code });
+
+        if (!coupon) {
+          return res.status(404).send({ message: "Coupon not found" });
+        }
+
+        const now = new Date();
+        const expireDate = new Date(coupon.expireDate);
+
+        if (expireDate < now) {
+          return res.status(400).send({ message: "Coupon has expired" });
+        }
+
+        res.send({
+          valid: true,
+          discount: coupon.discount,
+          title: coupon.title,
+        });
+      } catch (error) {
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
+
+    app.get("/coupons", async (req, res) => {
+      const coupons = await couponsCollection
+        .find()
+        .sort({ expireDate: -1 })
+        .toArray();
+      res.send(coupons);
+    });
+
+    app.post("/coupons", async (req, res) => {
+      const { title, description, code, discount, expireDate } = req.body;
+
+      if (!title || !description || !code || !discount || !expireDate) {
+        return res.status(400).send({ message: "All fields are required" });
+      }
+
+      const exists = await couponsCollection.findOne({ code });
+      if (exists) {
+        return res.status(409).send({ message: "Coupon code already exists" });
+      }
+
+      const result = await couponsCollection.insertOne({
+        title,
+        description,
+        code,
+        discount: parseFloat(discount),
+        expireDate: new Date(expireDate),
+        createdAt: new Date(),
+      });
+
+      res.send(result);
+    });
+
+    app.patch("/coupons/:id", async (req, res) => {
+      const { id } = req.params;
+      const { expireDate } = req.body;
+
+      if (!expireDate) {
+        return res.status(400).send({ message: "Expire date is required" });
+      }
+
+      const result = await couponsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { expireDate: new Date(expireDate) } }
+      );
+
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
