@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { useState } from "react";
 import PawfectMatchLogo from "../PawfectMatchLogo/PawfectMatchLogo";
+import { ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
   const { user, logOutUser } = useAuth();

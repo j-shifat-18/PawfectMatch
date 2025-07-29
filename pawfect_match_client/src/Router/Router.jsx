@@ -25,6 +25,7 @@ import ManageUsers from "../Pages/ManageUsers/ManageUsers";
 import AddProduct from "../Pages/AddProduct/AddProduct";
 import Cart from "../Pages/Cart/Cart";
 import CheckoutWrapper from "../Pages/Checkout/CheckoutWrapper";
+import MyOrders from "../Pages/MyOrders/MyOrders";
 
 export const router = createBrowserRouter([
   {
@@ -177,6 +178,14 @@ export const router = createBrowserRouter([
           <AdminProtectedRoutes>
             <AddProduct></AddProduct>
           </AdminProtectedRoutes>
+        ),
+      },
+      {
+        path: "my-orders",
+        element: (
+          <UserProtectedRoute>
+            <MyOrders></MyOrders>
+          </UserProtectedRoute>
         ),
       },
     ],

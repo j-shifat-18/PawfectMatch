@@ -15,6 +15,7 @@ import {
   Cat,
   UserPen,
   FolderPlus,
+  ShoppingBag,
 } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
 import Loader from "../../Components/Loader/Loader";
@@ -119,6 +120,15 @@ const DashboardLayout = () => {
                   >
                     <FaPaw className="w-5 h-5" />
                     Adoption Requests
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/dashboard/my-orders"
+                    className={linkClass}
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    My Orders
                   </NavLink>
                 </li>
               </>

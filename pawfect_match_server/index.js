@@ -4,6 +4,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { v4: uuidv4 } = require('uuid'); // uuid for unique ID
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -504,6 +505,28 @@ async function run() {
 
     // orders
 
+    // Backend: Get paid orders (for specific user or all users if no email provided)
+    app.get("/orders", async (req, res) => {
+      const buyerEmail = req.query.email;
+
+      const filter = { payment_status: "paid" };
+      if (buyerEmail) {
+        filter.buyerEmail = buyerEmail;
+      }
+
+      try {
+        const paidOrders = await ordersCollection
+          .find(filter)
+          .sort({ payment_date: -1 }) // Latest orders first
+          .toArray();
+
+        res.send(paidOrders);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
+
     app.get("/orders/:id", async (req, res) => {
       const id = req.params.id;
       const result = await ordersCollection.findOne({ _id: new ObjectId(id) });
@@ -539,12 +562,15 @@ async function run() {
       const orderId = req.params.id;
 
       try {
+        const transactionId = uuidv4(); // Generate a unique transaction ID
+
         const result = await ordersCollection.updateOne(
           { _id: new ObjectId(orderId) },
           {
             $set: {
               payment_status: "paid",
-              payment_date: new Date(), // Optional: Track when payment was made
+              payment_date: new Date(),
+              transactionId: transactionId,
             },
           }
         );
@@ -555,7 +581,7 @@ async function run() {
             .send({ message: "Order not found or already paid" });
         }
 
-        res.send({ message: "Order marked as paid" });
+        res.send({ message: "Order marked as paid", transactionId });
       } catch (err) {
         console.error(err);
         res.status(500).send({ message: "Internal server error" });
