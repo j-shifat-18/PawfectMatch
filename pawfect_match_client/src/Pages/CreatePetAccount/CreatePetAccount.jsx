@@ -3,11 +3,10 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { FaPaw } from "react-icons/fa";
+import { FaPaw, FaMagic } from "react-icons/fa";
 import Swal from "sweetalert2";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-
 const imageHostingKey = import.meta.env.VITE_IMAGE_UPLOAD_KEY;
 const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
@@ -15,12 +14,15 @@ const CreatePetAccount = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm();
 
   const { mutateAsync } = useMutation({
@@ -29,6 +31,57 @@ const CreatePetAccount = () => {
       return res.data;
     },
   });
+
+  const autoDetectPetInfo = async () => {
+    const imageFile = watch("image")?.[0];
+    if (!imageFile) {
+      Swal.fire("Error", "Please upload an image first", "error");
+      return;
+    }
+
+    setIsDetecting(true);
+    try {
+      // Compress and resize image before sending
+      const compressedImage = await compressImage(imageFile);
+      
+      // Convert image to base64
+      const base64Image = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+          resolve(base64);
+        };
+        reader.readAsDataURL(compressedImage);
+      });
+
+      // Call server endpoint for AI analysis
+      const response = await axiosSecure.post("/ai/auto-detect-pet", {
+        imageData: base64Image,
+        mimeType: compressedImage.type
+      });
+
+      if (response.data.success) {
+        const petInfo = response.data.data;
+        
+        // Update form fields with detected information
+        if (petInfo.type) setValue("type", petInfo.type);
+        if (petInfo.breed) setValue("breed", petInfo.breed);
+        if (petInfo.color) setValue("color", petInfo.color);
+        if (petInfo.gender) setValue("gender", petInfo.gender);
+        if (petInfo.age) setValue("age", petInfo.age);
+        if (petInfo.weight) setValue("weight", petInfo.weight);
+
+        Swal.fire("Success", "Pet information detected successfully!", "success");
+      } else {
+        throw new Error(response.data.message || "Detection failed");
+      }
+    } catch (error) {
+      console.error("Auto detect error:", error);
+      Swal.fire("Error", "Failed to detect pet information. Please fill manually.", "error");
+    } finally {
+      setIsDetecting(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -160,8 +213,17 @@ const CreatePetAccount = () => {
           />
         </div>
 
-        <div className="md:col-span-2 flex justify-center">
-          <button className="btn btn-primary w-full" type="submit" disabled={isSubmitting}>
+        <div className="md:col-span-2 flex gap-2">
+          <button 
+            type="button"
+            onClick={autoDetectPetInfo}
+            disabled={isDetecting || !watch("image")?.[0]}
+            className="btn btn-secondary flex-1"
+          >
+            <FaMagic className="mr-2" />
+            {isDetecting ? "Detecting..." : "Auto Detect"}
+          </button>
+          <button className="btn btn-primary flex-1" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Create Pet Account"}
           </button>
         </div>
