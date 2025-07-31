@@ -14,6 +14,7 @@ const UserProfile = () => {
   const isOwnProfile = user?.email === profileEmail;
   const axiosSecure = useAxiosSecure();
   const [isEditing, setIsEditing] = useState(false);
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
 
   const {
     register,
@@ -99,6 +100,39 @@ const UserProfile = () => {
     }
   };
 
+  const { register: registerPrefs, handleSubmit: handlePrefsSubmit } =
+    useForm();
+
+  const handleSavePreferences = async (formData) => {
+    const payload = {
+      age: Number(formData.age),
+      location: formData.location,
+      living_situation: formData.living_situation,
+      has_kids: formData.has_kids === "true",
+      daily_availability_hours: Number(formData.daily_availability_hours),
+      activity_level: formData.activity_level,
+      pet_experience: formData.pet_experience,
+      budget: formData.budget,
+      preferences: {
+        species: formData.species.split(",").map((s) => s.trim()),
+        size: formData.size,
+        noise_tolerance: formData.noise_tolerance,
+        grooming_tolerance: formData.grooming_tolerance,
+        indoor_only: formData.indoor_only === "true",
+      },
+    };
+
+    try {
+      await axiosSecure.patch(`/users/${profileUser.email}`, payload);
+      Swal.fire("Saved!", "Preferences updated successfully", "success");
+      setShowPreferencesModal(false);
+      refetchUser();
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to update preferences", "error");
+    }
+  };
+
   if (userLoading || petsLoading)
     return <span className="loading loading-dots"></span>;
 
@@ -146,9 +180,11 @@ const UserProfile = () => {
               >
                 Save
               </button>
-              {
-                isSubmitting && <p className="text-blue-400">Profile is updating ! Please wait some moment.</p>
-              }
+              {isSubmitting && (
+                <p className="text-blue-400">
+                  Profile is updating ! Please wait some moment.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
@@ -172,6 +208,241 @@ const UserProfile = () => {
                 >
                   Edit Profile
                 </button>
+              )}
+              {isOwnProfile && (
+                <>
+                  <button
+                    onClick={() => setShowPreferencesModal(true)}
+                    className="btn btn-sm mt-2 ml-2 bg-success text-white rounded-full hover:bg-green-600 border-none"
+                  >
+                    Add Preferences
+                  </button>
+
+                  {/* Modal */}
+                  {showPreferencesModal && (
+                    <div className="modal modal-open">
+                      <div className="modal-box max-w-2xl max-h-[600px]">
+                        <h3 className="font-bold text-lg mb-2">
+                          User Preferences
+                        </h3>
+                        <form
+                          onSubmit={handlePrefsSubmit(handleSavePreferences)}
+                          className="space-y-3"
+                        >
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label htmlFor="age" className="label">
+                                Age
+                              </label>
+                              <input
+                                id="age"
+                                type="number"
+                                placeholder="Age"
+                                {...registerPrefs("age")}
+                                className="input input-bordered w-full"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="location" className="label">
+                                Location
+                              </label>
+                              <input
+                                id="location"
+                                type="text"
+                                placeholder="Location"
+                                {...registerPrefs("location")}
+                                className="input input-bordered w-full"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label
+                                htmlFor="living_situation"
+                                className="label"
+                              >
+                                Living Situation
+                              </label>
+                              <input
+                                id="living_situation"
+                                type="text"
+                                placeholder="Living Situation"
+                                {...registerPrefs("living_situation")}
+                                className="input input-bordered w-full"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="has_kids" className="label">
+                                Has Kids?
+                              </label>
+                              <select
+                                id="has_kids"
+                                {...registerPrefs("has_kids")}
+                                className="select select-bordered w-full"
+                              >
+                                <option value="false">No Kids</option>
+                                <option value="true">Has Kids</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label
+                                htmlFor="daily_availability_hours"
+                                className="label"
+                              >
+                                Daily Availability (hrs)
+                              </label>
+                              <input
+                                id="daily_availability_hours"
+                                type="number"
+                                placeholder="Daily Availability (hrs)"
+                                {...registerPrefs("daily_availability_hours")}
+                                className="input input-bordered w-full"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="activity_level" className="label">
+                                Activity Level
+                              </label>
+                              <select
+                                id="activity_level"
+                                {...registerPrefs("activity_level")}
+                                className="select select-bordered w-full"
+                              >
+                                <option value="low">Low</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="high">High</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label htmlFor="pet_experience" className="label">
+                                Pet Experience
+                              </label>
+                              <select
+                                id="pet_experience"
+                                {...registerPrefs("pet_experience")}
+                                className="select select-bordered w-full"
+                              >
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">
+                                  Intermediate
+                                </option>
+                                <option value="expert">Expert</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label htmlFor="budget" className="label">
+                                Budget
+                              </label>
+                              <select
+                                id="budget"
+                                {...registerPrefs("budget")}
+                                className="select select-bordered w-full"
+                              >
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <hr className="my-2" />
+
+                          <h4 className="font-semibold mt-4">Preferences</h4>
+
+                          <div>
+                            <label htmlFor="species" className="label">
+                              Species
+                            </label>
+                            <input
+                              id="species"
+                              type="text"
+                              placeholder="Species (comma-separated, e.g., cat, dog)"
+                              {...registerPrefs("species")}
+                              className="input input-bordered w-full"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label htmlFor="size" className="label">
+                              Size
+                            </label>
+                            <input
+                              id="size"
+                              type="text"
+                              placeholder="Size"
+                              {...registerPrefs("size")}
+                              className="input input-bordered w-full"
+                            />
+                          </div>
+
+                          <div>
+                            <label htmlFor="noise_tolerance" className="label">
+                              Noise Tolerance
+                            </label>
+                            <select
+                              id="noise_tolerance"
+                              {...registerPrefs("noise_tolerance")}
+                              className="select select-bordered w-full"
+                            >
+                              <option value="low">Low</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="high">High</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="grooming_tolerance"
+                              className="label"
+                            >
+                              Grooming Tolerance
+                            </label>
+                            <select
+                              id="grooming_tolerance"
+                              {...registerPrefs("grooming_tolerance")}
+                              className="select select-bordered w-full"
+                            >
+                              <option value="low">Low</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="high">High</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label htmlFor="indoor_only" className="label">
+                              Indoor Only?
+                            </label>
+                            <select
+                              id="indoor_only"
+                              {...registerPrefs("indoor_only")}
+                              className="select select-bordered w-full"
+                            >
+                              <option value="true">Indoor Only</option>
+                              <option value="false">Not Indoor Only</option>
+                            </select>
+                          </div>
+
+                          <div className="modal-action">
+                            <button
+                              type="submit"
+                              className="btn btn-success text-white"
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowPreferencesModal(false)}
+                              className="btn"
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

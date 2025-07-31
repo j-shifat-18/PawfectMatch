@@ -1,4 +1,3 @@
-// CreatePetAccount.jsx
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
@@ -44,7 +43,7 @@ const CreatePetAccount = () => {
       if (!imgData.success) throw new Error("Image upload failed");
 
       const petData = {
-        ownerEmail:user.email,
+        ownerEmail: user.email,
         ownerId: user.uid,
         name: data.name,
         type: data.type,
@@ -58,6 +57,16 @@ const CreatePetAccount = () => {
         isAdopted: false,
         isListedForAdoption: false,
         createdAt: new Date(),
+
+        // New fields
+        species: data.species,
+        temperament: data.temperament,
+        good_with_kids: data.good_with_kids === "true",
+        grooming_needs: data.grooming_needs,
+        exercise_needs: data.exercise_needs,
+        trained: data.trained === "true",
+        noise_level: data.noise_level,
+        available_in: data.available_in,
       };
 
       await mutateAsync(petData);
@@ -81,7 +90,10 @@ const CreatePetAccount = () => {
       <h2 className="text-3xl font-bold text-center mb-6 flex items-center justify-center gap-2">
         <FaPaw className="text-primary" /> Create Pet Account
       </h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         <div>
           <label className="label">Name</label>
           <input
@@ -89,7 +101,9 @@ const CreatePetAccount = () => {
             {...register("name", { required: "Pet name is required" })}
             className="input input-bordered w-full"
           />
-          {errors.name && <span className="text-error text-sm">{errors.name.message}</span>}
+          {errors.name && (
+            <span className="text-error text-sm">{errors.name.message}</span>
+          )}
         </div>
 
         <div>
@@ -100,7 +114,9 @@ const CreatePetAccount = () => {
             {...register("type", { required: "Type is required" })}
             className="input input-bordered w-full"
           />
-          {errors.type && <span className="text-error text-sm">{errors.type.message}</span>}
+          {errors.type && (
+            <span className="text-error text-sm">{errors.type.message}</span>
+          )}
         </div>
 
         <div>
@@ -110,12 +126,17 @@ const CreatePetAccount = () => {
             {...register("breed", { required: "Breed is required" })}
             className="input input-bordered w-full"
           />
-          {errors.breed && <span className="text-error text-sm">{errors.breed.message}</span>}
+          {errors.breed && (
+            <span className="text-error text-sm">{errors.breed.message}</span>
+          )}
         </div>
 
         <div>
           <label className="label">Gender</label>
-          <select {...register("gender", { required: true })} className="select select-bordered w-full">
+          <select
+            {...register("gender", { required: true })}
+            className="select select-bordered w-full"
+          >
             <option value="">Select gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
@@ -133,21 +154,122 @@ const CreatePetAccount = () => {
 
         <div>
           <label className="label">Color</label>
-          <input type="text" {...register("color")} className="input input-bordered w-full" />
+          <input
+            type="text"
+            {...register("color")}
+            className="input input-bordered w-full"
+          />
         </div>
 
         <div>
           <label className="label">Weight</label>
-          <input type="text" {...register("weight")} className="input input-bordered w-full" />
+          <input
+            type="text"
+            {...register("weight")}
+            className="input input-bordered w-full"
+          />
         </div>
 
         <div>
           <label className="label">Vaccinated?</label>
-          <select {...register("vaccinated", { required: true })} className="select select-bordered w-full">
+          <select
+            {...register("vaccinated", { required: true })}
+            className="select select-bordered w-full"
+          >
             <option value="">Select</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>
+        </div>
+
+        <div>
+          <label className="label">Species</label>
+          <input
+            type="text"
+            placeholder="e.g., dog, cat"
+            {...register("species", { required: true })}
+            className="input input-bordered w-full"
+          />
+        </div>
+
+        <div>
+          <label className="label">Temperament</label>
+          <input
+            type="text"
+            placeholder="e.g., calm, energetic"
+            {...register("temperament")}
+            className="input input-bordered w-full"
+          />
+        </div>
+
+        <div>
+          <label className="label">Good with Kids?</label>
+          <select
+            {...register("good_with_kids", { required: true })}
+            className="select select-bordered w-full"
+          >
+            <option value="">Select</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label">Grooming Needs</label>
+          <select
+            {...register("grooming_needs")}
+            className="select select-bordered w-full"
+          >
+            <option value="low">Low</option>
+            <option value="moderate">Moderate</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label">Exercise Needs</label>
+          <select
+            {...register("exercise_needs")}
+            className="select select-bordered w-full"
+          >
+            <option value="low">Low</option>
+            <option value="moderate">Moderate</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label">Trained?</label>
+          <select
+            {...register("trained")}
+            className="select select-bordered w-full"
+          >
+            <option value="">Select</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label">Noise Level</label>
+          <select
+            {...register("noise_level")}
+            className="select select-bordered w-full"
+          >
+            <option value="low">Low</option>
+            <option value="moderate">Moderate</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label">Available In</label>
+          <input
+            type="text"
+            placeholder="e.g., Dhaka"
+            {...register("available_in", { required: true })}
+            className="input input-bordered w-full"
+          />
         </div>
 
         <div className="md:col-span-2">
@@ -161,7 +283,11 @@ const CreatePetAccount = () => {
         </div>
 
         <div className="md:col-span-2 flex justify-center">
-          <button className="btn btn-primary w-full" type="submit" disabled={isSubmitting}>
+          <button
+            className="btn btn-primary w-full"
+            type="submit"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Submitting..." : "Create Pet Account"}
           </button>
         </div>
