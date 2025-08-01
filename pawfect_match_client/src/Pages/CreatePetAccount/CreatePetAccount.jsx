@@ -367,14 +367,14 @@ const CreatePetAccount = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className="label">Pet Profile Picture</label>
-          <input
-            type="file"
-            accept="image/*"
-            {...register("image", { required: true })}
-            className="file-input file-input-bordered w-full"
-          />
-        </div>
+  <label className="label">Pet Profile Picture</label>
+  <input
+    type="file"
+    accept="image/*"
+    {...register("image", { required: true })}
+    className="file-input file-input-bordered w-full"
+  />
+</div>
 
 <div className="md:col-span-2 flex flex-col md:flex-row gap-2">
   <button 

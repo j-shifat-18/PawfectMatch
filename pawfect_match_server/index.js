@@ -23,6 +23,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const { validateCoupon } = require("./controllers/couponController");
 const { createAdoptionPost } = require("./controllers/adoptionController");
+const { getMyAdoptionRequests } = require("./controllers/adoptionRequestController");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -65,6 +66,9 @@ app.use("/ai", aiRoutes);
 
 // Legacy coupon validation route for backward compatibility
 app.get("/validate-coupon/:code", validateCoupon);
+
+app.get("/my-adoption-requests/:email", getMyAdoptionRequests);
+
 
 // Legacy adoption post route for backward compatibility
 app.post("/adoptionPosts", createAdoptionPost);

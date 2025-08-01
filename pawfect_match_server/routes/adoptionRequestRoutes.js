@@ -11,7 +11,7 @@ const {
 router.get("/:email", getAdoptionRequestsByOwner);
 
 // GET /my-adoption-requests/:email - Get adoption requests by requester email
-router.get("/my/:email", getMyAdoptionRequests);
+// router.get("/my-adoption-requests/:email", getMyAdoptionRequests);
 
 // POST /adoption-requests - Create adoption request
 router.post("/", createAdoptionRequest);
