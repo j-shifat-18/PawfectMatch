@@ -76,13 +76,13 @@ const Login = () => {
       });
   };
   return (
-    <div className="card text-white  w-full max-w-md shrink-0 ">
+    <div className="card text-black  w-full max-w-md shrink-0 ">
       <div className="card-body">
         <h1 className="text-4xl font-extrabold">Welcome Back</h1>
         <p className="font-medium text-lg mb-5">Login with PawfectMatch</p>
         <form className="fieldset" onSubmit={handleSubmit(handleLogin)}>
           {/* Email */}
-          <label className="label font-medium text-white text-base">
+          <label className="label font-medium text-black text-base">
             Email
           </label>
           <input
@@ -104,7 +104,7 @@ const Login = () => {
           )}
 
           {/* Password */}
-          <label className="label font-medium text-white text-base">
+          <label className="label font-medium text-black text-base">
             Password
           </label>
           <input

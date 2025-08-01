@@ -111,13 +111,13 @@ const Register = () => {
     setSelectedImage(res.data.data.url);
   };
   return (
-    <div className="card text-white  w-full max-w-md shrink-0 ">
+    <div className="card text-black  w-full max-w-md shrink-0 ">
       <div className="card-body">
         <h1 className="text-4xl font-extrabold">Create an Account</h1>
         <p className="font-medium text-lg mb-5">Register with PawfectMatch</p>
         <form className="fieldset" onSubmit={handleSubmit(handleRegister)}>
           {/* Image */}
-          <label className="label font-medium text-white text-base">
+          <label className="label font-medium text-black text-base">
             Image
           </label>
 
@@ -144,7 +144,7 @@ const Register = () => {
           </label>
 
           {/* Name */}
-          <label className="label font-medium text-white text-base">Name</label>
+          <label className="label font-medium text-black text-base">Name</label>
           <input
             type="text"
             {...register("name", {
@@ -158,7 +158,7 @@ const Register = () => {
           )}
 
           {/* Email */}
-          <label className="label font-medium text-white text-base">
+          <label className="label font-medium text-black text-base">
             Email
           </label>
           <input
@@ -180,7 +180,7 @@ const Register = () => {
           )}
 
           {/* Password */}
-          <label className="label font-medium text-white text-base">
+          <label className="label font-medium text-black text-base">
             Password
           </label>
           <input

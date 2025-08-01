@@ -1,34 +1,28 @@
 import React from "react";
 import { Outlet } from "react-router";
 
-// import authImg from "../../assets/authImage.jpg";
-
-
+import authImg from "../../assets/auth-image.svg";
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen w-full relative bg-black">
-      {/* Copper Forge Background with Top Glow */}
+    <div className="min-h-screen w-full relative bg-white">
+      {/* Soft Yellow Glow */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249, 115, 22, 0.25), transparent 70%), #000000",
+          backgroundImage: `
+      radial-gradient(circle at center, #FFB347 0%, transparent 50%)
+    `,
+          opacity: 0.6,
+          mixBlendMode: "multiply",
         }}
       />
 
-      {/* Your Content/Components */}
-
+      {/* Content/Components */}
       <div className="flex flex-col lg:flex-row-reverse h-full ">
         <div className="min-h-screen flex justify-center items-center flex-1">
-          {/* <img className="w-full max-h-screen" src={authImg} /> */}
-          <iframe
-            className="z-10"
-            src="https://my.spline.design/worldplanet-PBtkUIKnwIgjbH4MiebFG8n7/"
-            frameborder="0"
-            width="100%"
-            height="100%"
-          ></iframe>
+          <img className="w-full max-h-screen" src={authImg} />
+          
         </div>
         <div className="flex-1">
           <div className="pt-6 pl-6"></div>
