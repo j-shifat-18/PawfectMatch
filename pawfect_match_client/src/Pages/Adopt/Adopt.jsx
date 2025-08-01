@@ -55,7 +55,7 @@ const Adopt = () => {
 
     const fetchRequests = async () => {
       try {
-        const res = await axiosSecure.get(`/my-adoption-requests/${user.email}`);
+        const res = await axiosSecure.get(`/adoption-requests/my/${user.email}`);
         // Build map { petId: true }
         const map = {};
         res.data.forEach((req) => {

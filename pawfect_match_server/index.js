@@ -20,6 +20,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const { validateCoupon } = require("./controllers/couponController");
 const { createAdoptionPost } = require("./controllers/adoptionController");
 const { getMyAdoptionRequests } = require("./controllers/adoptionRequestController");
@@ -35,7 +36,8 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Connect to database
 connectDB()
@@ -60,6 +62,7 @@ app.use("/orders", orderRoutes);
 app.use("/coupons", couponRoutes);
 app.use("/cart", cartRoutes);
 app.use("/chat", chatRoutes);
+app.use("/ai", aiRoutes);
 
 // Legacy coupon validation route for backward compatibility
 app.get("/validate-coupon/:code", validateCoupon);
