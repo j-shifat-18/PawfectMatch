@@ -32,9 +32,13 @@ const autoDetectPetInfo = async (req, res) => {
       "color": "primary color(s)",
       "gender": "male or female if identifiable",
       "age": "estimated age in years",
-      "weight": "estimated weight if possible"
+      "weight": "estimated weight if possible",
+      "grooming_needs": "low, moderate, or high based on breed characteristics",
+      "exercise_needs": "low, moderate, or high based on breed and age",
+      "noise_level": "low, moderate, or high based on breed characteristics"
     }
     
+    For grooming_needs, exercise_needs, and noise_level, choose one of: "low", "moderate", "high".
     Only return the JSON object, no additional text.`;
 
     // Generate content from image
