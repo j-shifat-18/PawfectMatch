@@ -15,7 +15,7 @@ const Conversation = ({ messages, onSendMessage, selectedUser, userEmail }) => {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: 16, borderBottom: '1px solid #eee', background: '#f5f5f5' }}>
-        <b>Chat with {selectedUser === userEmail ? 'Yourself' : selectedUser}</b>
+        <b>Chat with <span className='text-primary'>{selectedUser === userEmail ? 'Yourself' : selectedUser}</span></b>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, background: '#fff' }}>
         {messages.map((msg, idx) => (

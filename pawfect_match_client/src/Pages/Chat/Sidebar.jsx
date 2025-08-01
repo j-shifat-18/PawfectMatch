@@ -3,7 +3,7 @@ import React from 'react';
 const Sidebar = ({ threads, selectedUser, setSelectedUser, userEmail }) => {
   return (
     <div style={{ width: 260, borderRight: '1px solid #eee', background: '#fafafa', overflowY: 'auto' }}>
-      <h3 style={{ padding: 16, margin: 0, borderBottom: '1px solid #eee' }}>Chats</h3>
+      <h3 style={{ padding: 16, margin: 0, borderBottom: '1px solid #eee' }} className='font-extrabold text-primary text-2xl'>Chats</h3>
       {threads.length === 0 && <div style={{ padding: 16 }}>No conversations yet.</div>}
       {threads.map((thread) => (
         <div

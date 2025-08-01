@@ -69,7 +69,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "chat",
-        element: <Chat />,
+        element: (
+          <UserProtectedRoute>
+            <Chat />
+          </UserProtectedRoute>
+        ),
       },
     ],
   },
