@@ -21,8 +21,10 @@ import useAuth from "../../Hooks/useAuth";
 import Loader from "../../Components/Loader/Loader";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import PawfectMatchLogo from "../../Components/PawfectMatchLogo/PawfectMatchLogo";
+import useOfflineSync from "../../Hooks/useOfflineSync";
 
 const DashboardLayout = () => {
+  useOfflineSync();
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 

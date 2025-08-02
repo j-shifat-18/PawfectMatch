@@ -4,7 +4,7 @@ import { AuthContext } from '../Contexts/AuthContext';
 
 const useAuth = () => {
     const authInfo = use(AuthContext);
-    console.log('in hook',authInfo.user)
+    // console.log('in hook',authInfo.user)
     return authInfo;
 };
 

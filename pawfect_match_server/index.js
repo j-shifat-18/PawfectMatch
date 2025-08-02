@@ -92,6 +92,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+app.get('/ping', (req, res) => {
+  res.status(200).json({ message: 'pong' });
+});
+
 const http = require("http");
 const { Server } = require("socket.io");
 const server = http.createServer(app);

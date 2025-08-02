@@ -8,7 +8,9 @@ import { toast } from "react-toastify";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../Components/Loader/Loader";
-import emptySvg from '../../assets/empty-pets.svg'
+import emptySvg from "../../assets/empty-pets.svg";
+import db from "../../utils/dexieDB";
+import { isActuallyOnline } from "../../Utils/isActuallyOnline";
 
 const Adopt = () => {
   const axiosSecure = useAxiosSecure();
@@ -28,13 +30,40 @@ const Adopt = () => {
   const {
     data: adoptionPosts = [],
     isLoading: postsLoading,
+    refetch: refetchPosts,
   } = useQuery({
     queryKey: ["adoptionPosts", search, type, availability],
     queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/adoption-posts?search=${search}&type=${type}&availability=${availability}`
-      );
-      return res.data;
+      const online = await isActuallyOnline();
+      console.log("Network status (custom):", online);
+
+      if (online) {
+        try {
+          const res = await axiosSecure.get(
+            `/adoption-posts?search=${search}&type=${type}&availability=${availability}`
+          );
+          const posts = res.data;
+
+          // Save to IndexedDB
+          await db.adoptionPosts.clear();
+          await db.adoptionPosts.bulkPut(posts);
+          console.log("Fetched from server and saved to IndexedDB:", posts);
+
+          return posts;
+        } catch (err) {
+          console.warn(
+            "🛑 Server fetch failed. Falling back to IndexedDB.",
+            err
+          );
+          const fallbackPosts = await db.adoptionPosts.toArray();
+          return fallbackPosts;
+        }
+      } else {
+        console.log("📴 Offline mode: Fetching from IndexedDB");
+        const offlinePosts = await db.adoptionPosts.toArray();
+        console.log("Loaded from IndexedDB:", offlinePosts);
+        return offlinePosts;
+      }
     },
   });
 
@@ -55,7 +84,7 @@ const Adopt = () => {
 
     const fetchRequests = async () => {
       try {
-        const res = await axiosSecure.get(`/adoption-requests/my/${user.email}`);
+        const res = await axiosSecure.get(`/adoption-requests/${user.email}`);
         // Build map { petId: true }
         const map = {};
         res.data.forEach((req) => {
@@ -166,11 +195,7 @@ const Adopt = () => {
       {/* No Data */}
       {!postsLoading && adoptionPosts.length === 0 && (
         <div className="text-center mt-10">
-          <img
-            src={emptySvg}
-            alt="No Results"
-            className="mx-auto w-52"
-          />
+          <img src={emptySvg} alt="No Results" className="mx-auto w-52" />
           <p className="text-lg font-medium text-gray-600 mt-4">
             No adoption posts found. Try adjusting your filters.
           </p>
