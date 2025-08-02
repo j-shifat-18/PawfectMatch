@@ -2,8 +2,10 @@ import React from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import { Outlet } from "react-router";
 import Footer from "../../Components/Footer/Footer";
+import useOfflineSync from "../../Hooks/useOfflineSync";
 
 const RootLayout = () => {
+  useOfflineSync();
   return (
     <div className="min-h-screen w-full relative bg-white">
       {/* Soft Yellow Glow */}

@@ -2,8 +2,10 @@ import React from "react";
 import { Outlet } from "react-router";
 
 import authImg from "../../assets/auth-image.svg";
+import useOfflineSync from "../../Hooks/useOfflineSync";
 
 const AuthLayout = () => {
+  useOfflineSync();
   return (
     <div className="min-h-screen w-full relative bg-white">
       {/* Soft Yellow Glow */}

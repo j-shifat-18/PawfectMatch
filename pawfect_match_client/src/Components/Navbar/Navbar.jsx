@@ -3,7 +3,9 @@ import { Link, NavLink, useNavigate } from "react-router";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
 import PawfectMatchLogo from "../PawfectMatchLogo/PawfectMatchLogo";
-import { Menu, X } from "lucide-react";
+import { BiLogOut } from "react-icons/bi";
+import { LayoutDashboard, MessageCircleMore, ShoppingCart } from "lucide-react";
+
 
 const Navbar = () => {
   const { user, logOutUser } = useAuth();
@@ -116,29 +118,34 @@ const Navbar = () => {
                 </div>
                 <Link
                   to="chat"
-                  className="px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
+                  className="flex items-center gap-1 px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
                   onClick={() => setDropdownOpen(false)}
                 >
+                  {/* <IoChatbubbleEllipsesSharp /> */}
+                  <MessageCircleMore size={20} />
                   Chats
                 </Link>
                 <Link
                   to="/order/cart"
-                  className="px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
+                  className="flex items-center gap-1 px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
                   onClick={() => setDropdownOpen(false)}
                 >
+                  <ShoppingCart size={20} />
                   Cart
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
+                  className="flex items-center gap-1 px-5 py-3 transition-colors border-b border-base-300 hover:bg-secondary"
                   onClick={() => setDropdownOpen(false)}
                 >
+                  <LayoutDashboard size={20} />
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-5 py-3 text-left hover:bg-secondary transition-colors rounded-b-lg"
+                  className="flex items-center gap-1 px-5 py-3 text-left hover:bg-secondary transition-colors rounded-b-lg"
                 >
+                  <BiLogOut size={20} />
                   Logout
                 </button>
               </div>

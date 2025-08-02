@@ -6,10 +6,15 @@ import { FaPaw, FaMagic } from "react-icons/fa";
 import Swal from "sweetalert2";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import db from "../../utils/dexieDB";
+import useOfflineSync from "../../Hooks/useOfflineSync";
+ import { isActuallyOnline } from "../../Utils/isActuallyOnline";
+
+
 const imageHostingKey = import.meta.env.VITE_IMAGE_UPLOAD_KEY;
 const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
-// Image compression function
+
 const compressImage = (file) => {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
@@ -46,6 +51,7 @@ const compressImage = (file) => {
 };
 
 const CreatePetAccount = () => {
+  useOfflineSync();
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,12 +129,43 @@ const CreatePetAccount = () => {
     }
   };
 
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    try {
+const onSubmit = async (data) => {
+  setIsSubmitting(true);
+
+  try {
+    const imageFile = data.image[0];
+
+    const petData = {
+      ownerEmail: user.email,
+      ownerId: user.uid,
+      name: data.name,
+      type: data.type,
+      breed: data.breed,
+      gender: data.gender,
+      age: parseInt(data.age),
+      color: data.color,
+      weight: data.weight,
+      vaccinated: data.vaccinated === "yes",
+      isAdopted: false,
+      isListedForAdoption: false,
+      createdAt: new Date(),
+      species: data.species,
+      temperament: data.temperament,
+      good_with_kids: data.good_with_kids === "true",
+      grooming_needs: data.grooming_needs,
+      exercise_needs: data.exercise_needs,
+      trained: data.trained === "true",
+      noise_level: data.noise_level,
+      available_in: data.available_in,
+    };
+
+    const online = await isActuallyOnline();
+    console.log("Is actually online?", online);
+
+    if (online) {
       // Upload image to imgbb
       const formData = new FormData();
-      formData.append("image", data.image[0]);
+      formData.append("image", imageFile);
       const imageRes = await fetch(imageHostingUrl, {
         method: "POST",
         body: formData,
@@ -136,43 +173,32 @@ const CreatePetAccount = () => {
       const imgData = await imageRes.json();
       if (!imgData.success) throw new Error("Image upload failed");
 
-      const petData = {
-        ownerEmail: user.email,
-        ownerId: user.uid,
-        name: data.name,
-        type: data.type,
-        breed: data.breed,
-        gender: data.gender,
-        age: parseInt(data.age),
-        color: data.color,
-        weight: data.weight,
-        vaccinated: data.vaccinated === "yes",
-        images: [imgData.data.url],
-        isAdopted: false,
-        isListedForAdoption: false,
-        createdAt: new Date(),
-
-        // New fields
-        species: data.species,
-        temperament: data.temperament,
-        good_with_kids: data.good_with_kids === "true",
-        grooming_needs: data.grooming_needs,
-        exercise_needs: data.exercise_needs,
-        trained: data.trained === "true",
-        noise_level: data.noise_level,
-        available_in: data.available_in,
-      };
+      petData.images = [imgData.data.url];
 
       await mutateAsync(petData);
       reset();
       Swal.fire("Success", "Pet profile created!", "success");
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Something went wrong.", "error");
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      await db.pendingPets.add({
+        petData,
+        imageBlob: imageFile,
+        createdAt: new Date(),
+      });
+
+      reset();
+      Swal.fire("Offline", "Data saved locally. Will sync when online.", "info");
     }
-  };
+  } catch (err) {
+    console.error("Submission error:", err);
+    Swal.fire("Error", "Something went wrong.", "error");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+
+
 
   return (
     <motion.div
@@ -367,34 +393,33 @@ const CreatePetAccount = () => {
         </div>
 
         <div className="md:col-span-2">
-  <label className="label">Pet Profile Picture</label>
-  <input
-    type="file"
-    accept="image/*"
-    {...register("image", { required: true })}
-    className="file-input file-input-bordered w-full"
-  />
-</div>
+          <label className="label">Pet Profile Picture</label>
+          <input
+            type="file"
+            accept="image/*"
+            {...register("image", { required: true })}
+            className="file-input file-input-bordered w-full"
+          />
+        </div>
 
-<div className="md:col-span-2 flex flex-col md:flex-row gap-2">
-  <button 
-    type="button"
-    onClick={autoDetectPetInfo}
-    disabled={isDetecting || !watch("image")?.[0]}
-    className="btn btn-secondary w-full md:flex-1"
-  >
-    <FaMagic className="mr-2" />
-    {isDetecting ? "Detecting..." : "Auto Detect"}
-  </button>
-  <button
-    className="btn btn-primary w-full md:flex-1"
-    type="submit"
-    disabled={isSubmitting}
-  >
-    {isSubmitting ? "Submitting..." : "Create Pet Account"}
-  </button>
-</div>
-
+        <div className="md:col-span-2 flex flex-col md:flex-row gap-2">
+          <button
+            type="button"
+            onClick={autoDetectPetInfo}
+            disabled={isDetecting || !watch("image")?.[0]}
+            className="btn btn-secondary w-full md:flex-1"
+          >
+            <FaMagic className="mr-2" />
+            {isDetecting ? "Detecting..." : "Auto Detect"}
+          </button>
+          <button
+            className="btn btn-primary w-full md:flex-1"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Create Pet Account"}
+          </button>
+        </div>
       </form>
     </motion.div>
   );
