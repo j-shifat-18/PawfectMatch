@@ -4,7 +4,7 @@ const cors = require("cors");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Import database connection
-const { connectDB } = require("./config/db");
+const { connectDB, client } = require("./config/db");
 
 // Import middleware
 const { verifyFBToken } = require("./middlewares/authMiddleware");
@@ -100,6 +100,55 @@ app.post("/create-payment-intent", async (req, res) => {
   res.send({ clientSecret: paymentIntent.client_secret });
 });
 
+
+const paymentsCollection = client.db("pawfect_match").collection("payments");
+
+app.get('/payments' , async(req , res)=>{
+  const result = await paymentsCollection.find().toArray();
+  res.send(result);
+})
+
+app.post('/payments', async (req, res) => {
+  try {
+    const db = req.app.locals.db; // Get db from app.locals
+    const paymentData = req.body;
+
+    // Validate required fields
+    const requiredFields = [
+      'orderId',
+      'buyerEmail',
+      'productId',
+      'productName',
+      'productImage',
+      'price',
+      'finalPrice',
+      'transactionId',
+      'order_date',
+    ];
+
+    for (let field of requiredFields) {
+      if (!paymentData[field]) {
+        return res.status(400).json({ message: `Missing field: ${field}` });
+      }
+    }
+
+    // Set default fields if not provided
+    paymentData.payment_status = paymentData.payment_status || 'paid';
+    paymentData.delivery_status = paymentData.delivery_status || 'pending';
+    paymentData.payment_date = new Date();
+
+    const result = await paymentsCollection.insertOne(paymentData);
+
+    res.status(201).json({
+      message: 'Payment saved successfully',
+      insertedId: result.insertedId,
+    });
+  } catch (error) {
+    console.error('Error saving payment:', error);
+    res.status(500).json({ message: 'Failed to save payment data' });
+  }
+});
+
 // Root endpoint
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -109,15 +158,15 @@ app.get('/ping', (req, res) => {
   res.status(200).json({ message: 'pong' });
 });
 
-const http = require("http");
-const { Server } = require("socket.io");
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
-});
+// const http = require("http");
+// const { Server } = require("socket.io");
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: "http://localhost:5173",
+//     credentials: true,
+//   },
+// });
 
 // Socket.IO logic
 io.on("connection", (socket) => {

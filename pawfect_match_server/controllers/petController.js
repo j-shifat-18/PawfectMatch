@@ -5,9 +5,15 @@ const petsCollection = client.db("pawfect_match").collection("pets");
 
 // Get pets by owner email
 const getPetsByOwner = async (req, res) => {
+  
   try {
+    let query = {} ;
     const { ownerEmail } = req.query;
-    const pets = await petsCollection.find({ ownerEmail }).toArray();
+    if(ownerEmail)
+    {
+      query = {ownerEmail};
+    }
+    const pets = await petsCollection.find(query).toArray();
     res.json(pets);
   } catch (err) {
     console.error("Error fetching pets:", err);

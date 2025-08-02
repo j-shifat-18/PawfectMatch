@@ -72,7 +72,28 @@ const Checkout = () => {
       setError(result.error.message);
     } else {
       if (result.paymentIntent.status === "succeeded") {
+        // 1. Save payment info to /payments
+        const paymentData = {
+          orderId: order._id,
+          buyerEmail: order.buyerEmail,
+          productId: order.productId,
+          productName: order.productName,
+          productImage: order.productImage,
+          price: order.price,
+          discountPercent,
+          finalPrice,
+          transactionId: result.paymentIntent.id,
+          payment_status: "paid",
+          delivery_status: "pending",
+          order_date: order.order_date,
+          payment_date: new Date().toISOString(),
+        };
+
+        await axiosSecure.post("/payments", paymentData);
+
+        // 2. Update order status
         await axiosSecure.patch(`/orders/paid/${id}`);
+
         Swal.fire("Success", "Payment completed!", "success");
         navigate("/dashboard/my-orders");
       }

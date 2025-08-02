@@ -33,7 +33,7 @@ const DashboardWelcome = () => {
         </p>
 
         <Link to="/">
-          <button className="bg-primary text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition">
+          <button className="bg-primary text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-secondary transition">
             Go to Home Page
           </button>
         </Link>

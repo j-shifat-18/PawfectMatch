@@ -136,23 +136,6 @@ const DashboardLayout = () => {
               </>
             )}
 
-            {/* {userRole?.role === "member" && (
-            <>
-              <li>
-                <NavLink to="/dashboard/make-payment" className={linkClass}>
-                  <CreditCard className="w-5 h-5" />
-                  Make Payment
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/dashboard/payment-history" className={linkClass}>
-                  <ReceiptText className="w-5 h-5" />
-                  Payment History
-                </NavLink>
-              </li>
-            </>
-          )} */}
-
            {/* Admin navigation */}
           {userRole?.role === "admin" && (
             <>
