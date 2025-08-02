@@ -13,6 +13,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const [threads, setThreads] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserInfo, setSelectedUserInfo] = useState(null);
   const [messages, setMessages] = useState([]);
   const socketRef = useRef(null);
 
@@ -23,19 +24,103 @@ const Chat = () => {
     }
   }, [location.state]);
 
+  // Function to fetch user information for a specific email
+  const fetchUserInfo = async (email) => {
+    try {
+      const response = await fetch(`http://localhost:3000/users?email=${email}`);
+      const userData = await response.json();
+      return userData;
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      return null;
+    }
+  };
+
+  // Function to update threads with new message
+  const updateThreadsWithMessage = async (message) => {
+    setThreads(prevThreads => {
+      const otherUser = message.fromEmail === user.email ? message.toEmail : message.fromEmail;
+      
+      // Check if thread already exists
+      const existingThreadIndex = prevThreads.findIndex(thread => thread._id === otherUser);
+      
+      if (existingThreadIndex !== -1) {
+        // Update existing thread
+        const updatedThreads = [...prevThreads];
+        updatedThreads[existingThreadIndex] = {
+          ...updatedThreads[existingThreadIndex],
+          lastMessage: message.content,
+          lastDate: message.createdAt
+        };
+        // Move updated thread to top
+        const updatedThread = updatedThreads.splice(existingThreadIndex, 1)[0];
+        return [updatedThread, ...updatedThreads];
+      } else {
+        // Create new thread with placeholder data
+        const newThread = {
+          _id: otherUser,
+          lastMessage: message.content,
+          lastDate: message.createdAt,
+          userName: 'Loading...',
+          userPhotoURL: null,
+          firstName: 'Loading...'
+        };
+        
+        // Fetch user information for the new thread
+        fetchUserInfo(otherUser).then(userData => {
+          if (userData) {
+            setThreads(currentThreads => 
+              currentThreads.map(thread => 
+                thread._id === otherUser 
+                  ? {
+                      ...thread,
+                      userName: userData.name || 'Unknown User',
+                      userPhotoURL: userData.photoURL || null,
+                      firstName: userData.name ? userData.name.split(' ')[0] : 'Unknown'
+                    }
+                  : thread
+              )
+            );
+          }
+        });
+        
+        return [newThread, ...prevThreads];
+      }
+    });
+  };
+
+  // Function to fetch updated threads
+  const fetchThreads = async () => {
+    if (user?.email) {
+      try {
+        const response = await fetch(`http://localhost:3000/chat/threads?email=${user.email}`);
+        const updatedThreads = await response.json();
+        setThreads(updatedThreads);
+      } catch (error) {
+        console.error('Error fetching threads:', error);
+      }
+    }
+  };
+
   // Connect to socket
   useEffect(() => {
     if (user?.email) {
       socketRef.current = io(SOCKET_URL);
       socketRef.current.emit('join', user.email);
+      
       socketRef.current.on('receive_message', (msg) => {
+        // Update messages if it's for the current conversation
         if (
           (msg.fromEmail === user.email && msg.toEmail === selectedUser) ||
           (msg.fromEmail === selectedUser && msg.toEmail === user.email)
         ) {
           setMessages((prev) => [...prev, msg]);
         }
+        
+        // Update threads for all received messages
+        updateThreadsWithMessage(msg);
       });
+
       return () => {
         socketRef.current.disconnect();
       };
@@ -44,11 +129,7 @@ const Chat = () => {
 
   // Fetch threads
   useEffect(() => {
-    if (user?.email) {
-      fetch(`http://localhost:3000/chat/threads?email=${user.email}`)
-        .then((res) => res.json())
-        .then(setThreads);
-    }
+    fetchThreads();
   }, [user]);
 
   // Fetch messages when selectedUser changes
@@ -59,6 +140,14 @@ const Chat = () => {
         .then(setMessages);
     }
   }, [user, selectedUser]);
+
+  // Update selected user info when selectedUser changes
+  useEffect(() => {
+    if (selectedUser && threads.length > 0) {
+      const userThread = threads.find(thread => thread._id === selectedUser);
+      setSelectedUserInfo(userThread || null);
+    }
+  }, [selectedUser, threads]);
 
   const handleSendMessage = (content) => {
     const msg = {
@@ -75,6 +164,9 @@ const Chat = () => {
       body: JSON.stringify(msg),
     });
     setMessages((prev) => [...prev, msg]);
+    
+    // Update threads immediately for sent messages
+    updateThreadsWithMessage(msg);
   };
 
   return (
@@ -89,6 +181,7 @@ const Chat = () => {
         messages={messages}
         onSendMessage={handleSendMessage}
         selectedUser={selectedUser}
+        selectedUserInfo={selectedUserInfo}
         userEmail={user?.email}
       />
     </div>

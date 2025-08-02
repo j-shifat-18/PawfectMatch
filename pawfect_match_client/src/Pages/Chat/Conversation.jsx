@@ -1,12 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-const Conversation = ({ messages, onSendMessage, selectedUser, userEmail }) => {
+const Conversation = ({ messages, onSendMessage, selectedUser, selectedUserInfo, userEmail }) => {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const getDisplayName = () => {
+    if (selectedUser === userEmail) return 'Yourself';
+    if (selectedUserInfo) {
+      return selectedUserInfo.firstName || selectedUserInfo.userName || selectedUser;
+    }
+    return selectedUser;
+  };
 
   if (!selectedUser) {
     return <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>Select a chat to start messaging.</div>;
@@ -15,7 +23,7 @@ const Conversation = ({ messages, onSendMessage, selectedUser, userEmail }) => {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: 16, borderBottom: '1px solid #eee', background: '#f5f5f5' }}>
-        <b>Chat with <span className='text-primary'>{selectedUser === userEmail ? 'Yourself' : selectedUser}</span></b>
+        <b>Chat with <span className='text-primary'>{getDisplayName()}</span></b>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, background: '#fff' }}>
         {messages.map((msg, idx) => (
