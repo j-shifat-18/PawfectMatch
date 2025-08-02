@@ -4,7 +4,7 @@ const { client } = require('../config/db');
 exports.getThreads = async (req, res) => {
   const userEmail = req.query.email;
   try {
-    const db = client.db('pawfectmatch');
+    const db = client.db('pawfect_match');
     const threads = await db.collection('messages').aggregate([
       { $match: { $or: [ { fromEmail: userEmail }, { toEmail: userEmail } ] } },
       { $project: {
@@ -26,7 +26,21 @@ exports.getThreads = async (req, res) => {
       },
       { $sort: { lastDate: -1 } }
     ]).toArray();
-    res.json(threads);
+
+    // Get user information for each thread
+    const threadsWithUserInfo = await Promise.all(
+      threads.map(async (thread) => {
+        const user = await db.collection('users').findOne({ email: thread._id });
+        return {
+          ...thread,
+          userName: user?.name || 'Unknown User',
+          userPhotoURL: user?.photoURL || null,
+          firstName: user?.name ? user.name.split(' ')[0] : 'Unknown'
+        };
+      })
+    );
+
+    res.json(threadsWithUserInfo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -39,7 +53,7 @@ exports.getMessages = async (req, res) => {
     return res.status(400).json({ error: "Missing user1 or user2 in query params" });
   }
   try {
-    const db = client.db('pawfectmatch');
+    const db = client.db('pawfect_match');
     const messages = await db.collection('messages')
       .find({
         $or: [
@@ -59,7 +73,7 @@ exports.getMessages = async (req, res) => {
 exports.markAsRead = async (req, res) => {
   const { fromEmail, toEmail } = req.body;
   try {
-    const db = client.db('pawfectmatch');
+    const db = client.db('pawfect_match');
     await db.collection('messages').updateMany(
       { fromEmail, toEmail, read: false },
       { $set: { read: true } }
@@ -74,7 +88,7 @@ exports.markAsRead = async (req, res) => {
 exports.createMessage = async (req, res) => {
   const { fromEmail, toEmail, content } = req.body;
   try {
-    const db = client.db('pawfectmatch');
+    const db = client.db('pawfect_match');
     const message = {
       fromEmail,
       toEmail,
@@ -83,8 +97,23 @@ exports.createMessage = async (req, res) => {
       read: false
     };
     const result = await db.collection('messages').insertOne(message);
-    res.status(201).json({ ...message, _id: result.insertedId });
+    const savedMessage = { ...message, _id: result.insertedId };
+    
+    console.log('Message saved to database:', savedMessage);
+    
+    // Emit socket event to both sender and receiver
+    const io = req.app.get('io');
+    if (io) {
+      console.log('Emitting socket events to:', fromEmail, 'and', toEmail);
+      io.to(fromEmail).emit('receive_message', savedMessage);
+      io.to(toEmail).emit('receive_message', savedMessage);
+    } else {
+      console.log('Socket.io not available');
+    }
+    
+    res.status(201).json(savedMessage);
   } catch (err) {
+    console.error('Error creating message:', err);
     res.status(500).json({ error: err.message });
   }
 }; 
