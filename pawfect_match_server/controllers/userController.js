@@ -4,16 +4,24 @@ const usersCollection = client.db("pawfect_match").collection("users");
 
 // Get users with optional filtering
 const getUsers = async (req, res) => {
-  const { email, role } = req.query;
+  const { email, role, search } = req.query;
 
   const filter = {};
   if (email) filter.email = email;
   if (role) filter.role = role;
+  
+  // Add search functionality
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } }
+    ];
+  }
 
   try {
     const users = await usersCollection.find(filter).toArray();
     // If specific email is queried and only one result is expected
-    if (email && !role) {
+    if (email && !role && !search) {
       return res.send(users[0] || null);
     }
     res.send(users);

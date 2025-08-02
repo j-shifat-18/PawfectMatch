@@ -15,6 +15,7 @@ const Chat = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedUserInfo, setSelectedUserInfo] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [sendingMessages, setSendingMessages] = useState(new Set());
   const socketRef = useRef(null);
 
   // Pre-select recipient if coming from /adopt
@@ -102,6 +103,29 @@ const Chat = () => {
     }
   };
 
+  // Function to handle starting a new chat
+  const handleStartNewChat = (recipientEmail) => {
+    setSelectedUser(recipientEmail);
+    setMessages([]); // Clear messages for new chat
+    
+    // Fetch user info for the new chat but don't add to threads yet
+    fetchUserInfo(recipientEmail).then(userData => {
+      if (userData) {
+        const newThread = {
+          _id: recipientEmail,
+          lastMessage: '',
+          lastDate: new Date().toISOString(),
+          userName: userData.name || 'Unknown User',
+          userPhotoURL: userData.photoURL || null,
+          firstName: userData.name ? userData.name.split(' ')[0] : 'Unknown'
+        };
+        
+        // Only set the selected user info, don't add to threads yet
+        setSelectedUserInfo(newThread);
+      }
+    });
+  };
+
   // Connect to socket
   useEffect(() => {
     if (user?.email) {
@@ -109,12 +133,38 @@ const Chat = () => {
       socketRef.current.emit('join', user.email);
       
       socketRef.current.on('receive_message', (msg) => {
+        console.log('Received socket message:', msg);
+        
         // Update messages if it's for the current conversation
         if (
           (msg.fromEmail === user.email && msg.toEmail === selectedUser) ||
           (msg.fromEmail === selectedUser && msg.toEmail === user.email)
         ) {
-          setMessages((prev) => [...prev, msg]);
+          console.log('Processing message for current conversation');
+          setMessages((prev) => {
+            // For messages from current user, replace any temporary messages with the real one
+            if (msg.fromEmail === user.email) {
+              console.log('Replacing temporary message with real one');
+              // Remove any temporary messages with the same content
+              const filteredMessages = prev.filter(existingMsg => 
+                !(existingMsg.isSending && existingMsg.content === msg.content)
+              );
+              return [...filteredMessages, msg];
+            }
+            
+            // For messages from other users, just add them (no duplicates expected)
+            return [...prev, msg];
+          });
+          
+          // Clear sending state for current user's messages
+          if (msg.fromEmail === user.email) {
+            console.log('Clearing sending state');
+            setSendingMessages(prev => {
+              const newSet = new Set(prev);
+              // Clear all sending messages since we got confirmation
+              return new Set();
+            });
+          }
         }
         
         // Update threads for all received messages
@@ -157,16 +207,38 @@ const Chat = () => {
       createdAt: new Date().toISOString(),
       read: false,
     };
+    
+    // Add message to sending state for immediate feedback
+    const tempId = `temp_${Date.now()}`;
+    const tempMsg = { ...msg, _id: tempId, isSending: true };
+    setMessages((prev) => [...prev, tempMsg]);
+    setSendingMessages(prev => new Set(prev).add(tempId));
+    
     socketRef.current.emit('send_message', msg);
     fetch('http://localhost:3000/chat/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(msg),
     });
-    setMessages((prev) => [...prev, msg]);
     
     // Update threads immediately for sent messages
     updateThreadsWithMessage(msg);
+    
+    // Set a timeout to remove sending state after 5 seconds
+    setTimeout(() => {
+      setMessages((prev) => 
+        prev.map(message => 
+          message.isSending && message.content === content 
+            ? { ...message, isSending: false }
+            : message
+        )
+      );
+      setSendingMessages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(tempId);
+        return newSet;
+      });
+    }, 5000);
   };
 
   return (
@@ -176,6 +248,8 @@ const Chat = () => {
         selectedUser={selectedUser}
         setSelectedUser={setSelectedUser}
         userEmail={user?.email}
+        onStartNewChat={handleStartNewChat}
+        selectedUserInfo={selectedUserInfo}
       />
       <Conversation
         messages={messages}

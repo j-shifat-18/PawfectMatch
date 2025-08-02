@@ -28,7 +28,7 @@ const Conversation = ({ messages, onSendMessage, selectedUser, selectedUserInfo,
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, background: '#fff' }}>
         {messages.map((msg, idx) => (
           <div
-            key={idx}
+            key={msg._id || idx}
             style={{
               display: 'flex',
               justifyContent: msg.fromEmail === userEmail ? 'flex-end' : 'flex-start',
@@ -37,17 +37,20 @@ const Conversation = ({ messages, onSendMessage, selectedUser, selectedUserInfo,
           >
             <div
               style={{
-                background: msg.fromEmail === userEmail ? '#d1e7ff' : '#f0f0f0',
+                background: msg.fromEmail === userEmail 
+                  ? (msg.isSending ? '#e3f2fd' : '#d1e7ff') 
+                  : '#f0f0f0',
                 color: '#222',
                 padding: '8px 14px',
                 borderRadius: 16,
                 maxWidth: 320,
                 wordBreak: 'break-word',
+                opacity: msg.isSending ? 0.7 : 1,
               }}
             >
               {msg.content}
               <div style={{ fontSize: 11, color: '#888', marginTop: 2, textAlign: 'right' }}>
-                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {msg.isSending ? 'Sending...' : new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
           </div>

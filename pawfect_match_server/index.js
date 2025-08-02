@@ -107,13 +107,17 @@ app.get("/", (req, res) => {
 
 // Socket.IO logic
 io.on("connection", (socket) => {
+  console.log('New socket connection:', socket.id);
+  
   // Join a room for the user's email
   socket.on("join", (email) => {
+    console.log('User joining room:', email);
     socket.join(email);
   });
 
   // Handle sending a message
   socket.on("send_message", (data) => {
+    console.log('Received send_message event:', data);
     // data: { fromEmail, toEmail, content, createdAt, read }
     io.to(data.toEmail).emit("receive_message", data);
   });

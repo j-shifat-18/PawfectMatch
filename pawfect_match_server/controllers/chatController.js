@@ -99,15 +99,21 @@ exports.createMessage = async (req, res) => {
     const result = await db.collection('messages').insertOne(message);
     const savedMessage = { ...message, _id: result.insertedId };
     
+    console.log('Message saved to database:', savedMessage);
+    
     // Emit socket event to both sender and receiver
     const io = req.app.get('io');
     if (io) {
+      console.log('Emitting socket events to:', fromEmail, 'and', toEmail);
       io.to(fromEmail).emit('receive_message', savedMessage);
       io.to(toEmail).emit('receive_message', savedMessage);
+    } else {
+      console.log('Socket.io not available');
     }
     
     res.status(201).json(savedMessage);
   } catch (err) {
+    console.error('Error creating message:', err);
     res.status(500).json({ error: err.message });
   }
 }; 
