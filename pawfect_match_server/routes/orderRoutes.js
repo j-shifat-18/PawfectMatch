@@ -7,20 +7,22 @@ const {
   markOrderAsPaid,
   updateDeliveryStatus,
 } = require("../controllers/orderController");
+const { verifyAdmin } = require("../middlewares/verifyAdmin");
+const { verifyFBToken } = require("../middlewares/authMiddleware");
 
 // GET /orders - Get paid orders
-router.get("/", getPaidOrders);
+router.get("/",verifyFBToken, getPaidOrders);
 
 // GET /orders/:id - Get order by ID
-router.get("/:id", getOrderById);
+router.get("/:id",verifyFBToken,verifyAdmin, getOrderById);
 
 // POST /orders - Create new order
-router.post("/", createOrder);
+router.post("/",verifyFBToken,verifyAdmin, createOrder);
 
 // PATCH /orders/paid/:id - Mark order as paid
-router.patch("/paid/:id", markOrderAsPaid);
+router.patch("/paid/:id",verifyFBToken,verifyAdmin, markOrderAsPaid);
 
 // PATCH /orders/:id - Update delivery status
-router.patch("/:id", updateDeliveryStatus);
+router.patch("/:id",verifyFBToken,verifyAdmin, updateDeliveryStatus);
 
 module.exports = router; 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
@@ -15,6 +15,7 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [error , setError ] = useState("");
 
   const { loginUser, signInWithGoogle } = useAuth();
 
@@ -42,6 +43,7 @@ const Login = () => {
         navigate(`${location.state ? location.state : "/"}`);
       })
       .catch((error) => {
+        setError("Invalid Email or password!");
         console.log(error);
       });
   };
@@ -129,6 +131,10 @@ const Login = () => {
           <button className="btn text-lg mt-4 bg-primary mb-3 border-none hover:bg-orange-300">
             Login
           </button>
+
+          {
+            error && <p className="text-red-500 text-base">{error}</p>
+          }
 
           {/* Login Link */}
           <div>

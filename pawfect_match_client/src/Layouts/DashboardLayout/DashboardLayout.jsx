@@ -125,10 +125,7 @@ const DashboardLayout = () => {
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink
-                    to="/dashboard/my-orders"
-                    className={linkClass}
-                  >
+                  <NavLink to="/dashboard/my-orders" className={linkClass}>
                     <ShoppingBag className="w-5 h-5" />
                     My Orders
                   </NavLink>
@@ -136,22 +133,22 @@ const DashboardLayout = () => {
               </>
             )}
 
-           {/* Admin navigation */}
-          {userRole?.role === "admin" && (
-            <>
-              <li>
-                <NavLink to="/dashboard/admin-profile" className={linkClass}>
-                  <UserCog className="w-5 h-5" />
-                  Admin Profile
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/dashboard/manage-users" className={linkClass}>
-                  <Users className="w-5 h-5" />
-                  Manage Users
-                </NavLink>
-              </li>
-              {/* <li>
+            {/* Admin navigation */}
+            {userRole?.role === "admin" && (
+              <>
+                <li>
+                  <NavLink to="/dashboard/admin-profile" className={linkClass}>
+                    <UserCog className="w-5 h-5" />
+                    Admin Profile
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/manage-users" className={linkClass}>
+                    <Users className="w-5 h-5" />
+                    Manage Users
+                  </NavLink>
+                </li>
+                {/* <li>
                 <NavLink
                   to="/dashboard/make-announcement"
                   className={linkClass}
@@ -160,32 +157,26 @@ const DashboardLayout = () => {
                   Make Announcements
                 </NavLink>
               </li> */}
-              <li>
-                <NavLink
-                  to="/dashboard/add-product"
-                  className={linkClass}
-                >
-                  <FolderPlus className="w-5 h-5"/>
-                  Add Product
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/dashboard/order-requests"
-                  className={linkClass}
-                >
-                  <FileSignature className="w-5 h-5" />
-                  Order Requests
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/dashboard/manage-coupons" className={linkClass}>
-                  <BadgePercent className="w-5 h-5" />
-                  Manage Coupons
-                </NavLink>
-              </li>
-            </>
-          )}
+                <li>
+                  <NavLink to="/dashboard/add-product" className={linkClass}>
+                    <FolderPlus className="w-5 h-5" />
+                    Add Product
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/order-requests" className={linkClass}>
+                    <FileSignature className="w-5 h-5" />
+                    Order Requests
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/manage-coupons" className={linkClass}>
+                    <BadgePercent className="w-5 h-5" />
+                    Manage Coupons
+                  </NavLink>
+                </li>
+              </>
+            )}
 
             {/* Announcements (available to all roles) */}
             {/* <li>

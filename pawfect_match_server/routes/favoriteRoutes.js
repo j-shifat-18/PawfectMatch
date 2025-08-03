@@ -5,14 +5,15 @@ const {
   addToFavorites,
   removeFromFavorites,
 } = require("../controllers/favoriteController");
+const { verifyFBToken } = require("../middlewares/authMiddleware");
 
 // GET /favorites/:userId - Get favorites by user ID
-router.get("/:userId", getFavoritesByUser);
+router.get("/:userId",verifyFBToken, getFavoritesByUser);
 
 // POST /favorites - Add to favorites
-router.post("/", addToFavorites);
+router.post("/",verifyFBToken, addToFavorites);
 
 // DELETE /favorites - Remove from favorites
-router.delete("/", removeFromFavorites);
+router.delete("/",verifyFBToken, removeFromFavorites);
 
 module.exports = router; 

@@ -11,9 +11,11 @@ import Loader from "../../Components/Loader/Loader";
 import emptySvg from "../../assets/empty-pets.svg";
 import db from "../../utils/dexieDB";
 import { isActuallyOnline } from "../../Utils/isActuallyOnline";
+import useAxiosPublic from "../../Hooks/useAxiosPublic";
 
 const Adopt = () => {
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -72,7 +74,7 @@ const Adopt = () => {
     queryKey: ["favorites", user?.uid],
     enabled: !!user,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/favorites/${user.uid}`);
+      const res = await axiosPublic.get(`/favorites/${user.uid}`);
       setFavorites(res.data);
       return res.data;
     },

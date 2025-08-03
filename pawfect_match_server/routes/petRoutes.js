@@ -8,23 +8,24 @@ const {
   updatePetAdoptionStatus,
   transferPetOwnership,
 } = require("../controllers/petController");
+const { verifyFBToken } = require("../middlewares/authMiddleware");
 
 // GET /pets - Get pets by owner email
-router.get("/", getPetsByOwner);
+router.get("/",verifyFBToken, getPetsByOwner);
 
 // GET /pets/:id - Get pet by ID
-router.get("/:id", getPetById);
+router.get("/:id",verifyFBToken, getPetById);
 
 // POST /pets - Create new pet
-router.post("/", createPet);
+router.post("/",verifyFBToken, createPet);
 
 // PATCH /pets/:id - Update pet info
-router.patch("/:id", updatePet);
+router.patch("/:id",verifyFBToken, updatePet);
 
 // PATCH /pets/:id/adoption - Update pet adoption status
-router.patch("/:id/adoption", updatePetAdoptionStatus);
+router.patch("/:id/adoption",verifyFBToken, updatePetAdoptionStatus);
 
 // PATCH /pets/:id/transfer - Transfer pet ownership
-router.patch("/:id/transfer", transferPetOwnership);
+router.patch("/:id/transfer",verifyFBToken, transferPetOwnership);
 
 module.exports = router; 

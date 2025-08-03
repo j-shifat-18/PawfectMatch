@@ -105,15 +105,15 @@ const AdoptionRequests = () => {
               <td>{req.requestedBy.name}</td>
               <td>{req.requestedBy.email}</td>
               <td>{new Date(req.requestedAt).toLocaleString()}</td>
-              <td className="space-x-2">
+              <td className="space-x-2 flex flex-col md:flex-row">
                 <button
-                  className="btn btn-primary text-base btn-sm px-6 py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
+                  className="btn btn-primary text-sm btn-sm px-6 py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
                   onClick={() => handleAccept(req)}
                 >
                   Accept
                 </button>
                 <button
-                  className="btn btn-error text-base btn-sm px-6 py-2 rounded-full font-semibold hover:btn-secondary text-white transition-colors"
+                  className="btn btn-error  btn-sm px-6 py-2 rounded-full font-semibold hover:btn-secondary text-white transition-colors text-sm"
                   onClick={() => handleReject(req)}
                 >
                   Reject
@@ -121,7 +121,7 @@ const AdoptionRequests = () => {
               </td>
               <td>
                 <button
-                  className="btn bg-gradient-to-r from-cyan-400 to-blue-500 btn-sm px-6 py-2 rounded-full font-semibold hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 text-white text-base transition-colors"
+                  className="btn bg-gradient-to-r from-cyan-400 to-blue-500 btn-sm px-6 py-2 rounded-full font-semibold hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 text-white transition-colors text-sm"
                   onClick={() => {
                     navigate(`/dashboard/profile/${req.requestedBy.email}`)
                     // Placeholder: navigate to profile or open modal

@@ -5,9 +5,11 @@ import { motion } from "framer-motion";
 import { FaShoppingCart } from "react-icons/fa";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const Shop = () => {
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
@@ -33,7 +35,7 @@ const Shop = () => {
     };
 
     try {
-      await axiosPublic.post("/orders", order);
+      await axiosSecure.post("/orders", order);
       Swal.fire("Added to Cart!", "", "success");
     } catch (err) {
       Swal.fire("Failed to add to cart", "", "error");

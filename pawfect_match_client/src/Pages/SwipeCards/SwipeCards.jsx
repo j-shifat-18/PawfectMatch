@@ -4,6 +4,7 @@ import useAuth from '../../Hooks/useAuth';
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
 
 const Typewriter = ({ text }) => (
   <span className="font-bold text-xl text-gray-900 tracking-wide">
@@ -46,6 +47,7 @@ const cardVariants = {
 const SwipeCards = () => {
   const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   
   const [cards, setCards] = useState([]);
   const [activeCard, setActiveCard] = useState(0);
@@ -91,7 +93,7 @@ const SwipeCards = () => {
     if (!cards[activeCard] || !user?.email) return;
 
     try {
-      const response = await axiosPublic.post('/swipecards/swipe', {
+      const response = await axiosSecure.post('/swipecards/swipe', {
         userId: user.uid,
         cardId: cards[activeCard]._id,
         direction: direction
