@@ -98,6 +98,17 @@ app.get("/debug-favorites", async (req, res) => {
   }
 });
 
+// Test AI routes endpoint
+app.get("/test-ai-routes", (req, res) => {
+  res.json({ 
+    message: "AI routes are working",
+    availableEndpoints: [
+      "POST /ai/auto-detect-pet",
+      "GET /ai/matches"
+    ]
+  });
+});
+
 // Debug endpoint to check all routes
 app.get("/debug-routes", (req, res) => {
   const routes = [];

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useAuth from '../../Hooks/useAuth';
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 const Typewriter = ({ text }) => (
   <span className="font-bold text-xl text-gray-900 tracking-wide">
@@ -54,6 +55,10 @@ const SwipeCards = () => {
   const [loading, setLoading] = useState(true);
   const [remainingCards, setRemainingCards] = useState(0);
   const [shouldRestack, setShouldRestack] = useState(false);
+  const [showAIMatches, setShowAIMatches] = useState(false);
+  const [aiMatches, setAiMatches] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [hasPreferences, setHasPreferences] = useState(true); // Assume they have preferences initially
 
   // Fetch cards from backend
   const fetchCards = async (forceRefresh = false) => {
@@ -130,6 +135,78 @@ const SwipeCards = () => {
   const swipeCard = (dir) => {
     setDirection(dir);
     handleSwipe(dir);
+  };
+
+  // Get AI matches
+  const getAIMatches = async () => {
+    try {
+      if (!user?.email) {
+        toast.error('Please login to use AI matching');
+        return;
+      }
+
+      setAiLoading(true);
+      const response = await axiosPublic.get(`/ai/matches?userId=${user.email}`);
+      
+      if (response.data.success) {
+        setAiMatches(response.data.matchedPets);
+        setShowAIMatches(true);
+        toast.success(`Found ${response.data.matchedPets.length} perfect matches!`);
+      } else {
+        // Handle specific error for missing preferences
+        if (response.data.error && response.data.error.includes('preferences not found')) {
+          showPreferencesAlert();
+        } else {
+          toast.error(response.data.error || 'Failed to get AI matches');
+        }
+      }
+          } catch (error) {
+        console.error('Error getting AI matches:', error);
+        // Check if it's a 404 error (preferences not found)
+        if (error.response?.status === 404) {
+          setHasPreferences(false);
+          showPreferencesAlert();
+        } else {
+          toast.error('Failed to get AI matches');
+        }
+      } finally {
+        setAiLoading(false);
+      }
+    };
+
+  // Show preferences alert
+  const showPreferencesAlert = () => {
+    Swal.fire({
+      title: 'Set Your Preferences First! 🐾',
+      html: `
+        <div class="text-left">
+          <p class="mb-4">To get personalized AI matches, you need to set your pet preferences first.</p>
+          <div class="bg-blue-50 p-4 rounded-lg mb-4">
+            <h4 class="font-semibold text-blue-800 mb-2">What you can set:</h4>
+            <ul class="text-sm text-blue-700 space-y-1">
+              <li>• Preferred pet species (dogs, cats, etc.)</li>
+              <li>• Size preferences (small, medium, large)</li>
+              <li>• Activity level compatibility</li>
+              <li>• Living situation (apartment, house, etc.)</li>
+              <li>• Experience level with pets</li>
+              <li>• Budget considerations</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Set Preferences Now',
+      cancelButtonText: 'Maybe Later',
+      confirmButtonColor: '#FF8904',
+      cancelButtonColor: '#6B7280',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Navigate to user profile to set preferences
+        window.location.href = `/dashboard/profile/${user.email}`;
+      }
+    });
   };
 
   const handleDragEnd = (event, info) => {
@@ -301,8 +378,133 @@ const SwipeCards = () => {
           <div className="text-gray-400 text-xs mt-2 flex items-center gap-2">
             <span className="text-lg">&#128072;</span> Grab or tap buttons to swipe
           </div>
+          
+          {/* AI Matching Button */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            {hasPreferences ? (
+              <>
+                <div className="text-center mb-2">
+                  <p className="text-xs text-gray-500">
+                    💡 Set your preferences in profile for personalized AI matches
+                  </p>
+                </div>
+                <button
+                  onClick={getAIMatches}
+                  disabled={aiLoading}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                  title="Get AI-powered pet recommendations based on your preferences"
+                >
+                  {aiLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      AI is finding your perfect matches...
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg">🤖</span>
+                      Use AI to Match
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-center mb-2">
+                  <p className="text-xs text-orange-600 font-medium">
+                    ⚠️ Preferences needed for AI matching
+                  </p>
+                </div>
+                <button
+                  onClick={showPreferencesAlert}
+                  className="w-full bg-gradient-to-r from-orange-400 to-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-orange-500 hover:to-red-600 transition-all duration-200 flex items-center justify-center gap-2"
+                  title="Set your preferences to enable AI matching"
+                >
+                  <span className="text-lg">⚙️</span>
+                  Set Preferences First
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
+      
+      {/* AI Matches Modal */}
+      {showAIMatches && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                  <span className="text-2xl">🤖</span>
+                  AI Matches
+                </h2>
+                <button
+                  onClick={() => setShowAIMatches(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {aiMatches.map((match, index) => (
+                  <div key={match._id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <div className="relative h-48 mb-4">
+                      <img
+                        src={match.images?.[0] || match.petInfo?.images?.[0] || "https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400"}
+                        alt={match.petInfo?.name}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <div className="absolute top-2 right-2 bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                        #{index + 1} Match
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      {match.petInfo?.name || "Unknown"}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {match.petInfo?.breed || "Unknown"} • {match.petInfo?.gender || "Unknown"}
+                    </p>
+                    <p className="text-xs text-gray-500 mb-3">
+                      {match.petInfo?.age || "Unknown"} years old
+                    </p>
+                    <p className="text-sm text-gray-700 mb-4">
+                      {match.description || "No description available"}
+                    </p>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          // Add to favorites
+                          handleSwipe("right");
+                          setShowAIMatches(false);
+                        }}
+                        className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                      >
+                        ❤️ Like
+                      </button>
+                      <button
+                        onClick={() => setShowAIMatches(false)}
+                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  These pets were selected by AI based on your preferences. 
+                  Set your preferences in your profile for better matches!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
