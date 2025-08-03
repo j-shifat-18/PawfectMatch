@@ -120,13 +120,25 @@ const getAIMatches = async (req, res) => {
 
     // Get random 20 pets with their adoption posts
     const allPets = await petsCollection.find({}).toArray();
+    console.log("Total pets found:", allPets.length);
+    
+    if (allPets.length === 0) {
+      return res.status(404).json({ 
+        error: "No pets available for AI matching. Please add some pets first." 
+      });
+    }
+    
     const randomPets = allPets.sort(() => Math.random() - 0.5).slice(0, 20);
+    console.log("Random pets selected:", randomPets.length);
     
     // Get adoption posts for these pets
     const petIds = randomPets.map(pet => pet._id.toString());
     const adoptionPosts = await adoptionPostsCollection
       .find({ petId: { $in: petIds } })
       .toArray();
+    
+    console.log("Adoption posts found:", adoptionPosts.length);
+    console.log("Pet IDs:", petIds);
 
     // Create pet map
     const petMap = {};
@@ -135,10 +147,25 @@ const getAIMatches = async (req, res) => {
     });
 
     // Combine pet info with adoption posts
-    const petsWithPosts = adoptionPosts.map(post => ({
+    let petsWithPosts = adoptionPosts.map(post => ({
       ...post,
       petInfo: petMap[post.petId] || {}
     }));
+    
+    console.log("Pets with posts:", petsWithPosts.length);
+    
+    // If no adoption posts found, create posts from pets directly
+    if (petsWithPosts.length === 0) {
+      console.log("No adoption posts found, creating posts from pets directly");
+      petsWithPosts = randomPets.map(pet => ({
+        _id: pet._id.toString(),
+        petId: pet._id.toString(),
+        title: `Adoption for ${pet.name}`,
+        description: `Looking for a loving home for ${pet.name}`,
+        petInfo: pet,
+        createdAt: new Date().toISOString()
+      }));
+    }
 
     // Prepare data for AI
     const petsData = petsWithPosts.map(pet => ({
@@ -191,7 +218,7 @@ Please select the top 3 pets that best match the user's preferences. Consider fa
 - Budget considerations
 - Family situation (kids, other pets)
 
-Return only the numbers of the top 3 pets (e.g., "1, 3, 7") and a brief explanation for each choice.`;
+IMPORTANT: Return ONLY the numbers of the top 3 pets separated by commas (e.g., "1,3,7"). Do not include any explanation or additional text.`;
 
     // Get the generative model
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -202,21 +229,29 @@ Return only the numbers of the top 3 pets (e.g., "1, 3, 7") and a brief explanat
     const text = response.text();
 
     // Parse the response to extract pet numbers
-    const lines = text.split('\n');
+    console.log("Raw AI response:", text);
+    
+    // Extract numbers from the response (should be just "1,2,3" format)
+    const numbersMatch = text.trim().match(/^(\d+),?\s*(\d+),?\s*(\d+)/);
     const petNumbers = [];
-    const explanations = [];
-
-    for (const line of lines) {
-      if (line.match(/^\d+\./)) {
-        const number = parseInt(line.match(/^(\d+)/)[1]);
-        if (number >= 1 && number <= petsData.length) {
-          petNumbers.push(number - 1); // Convert to 0-based index
-        }
-      }
+    
+    if (numbersMatch) {
+      petNumbers.push(
+        parseInt(numbersMatch[1]) - 1,
+        parseInt(numbersMatch[2]) - 1,
+        parseInt(numbersMatch[3]) - 1
+      );
+      console.log("Extracted numbers:", numbersMatch[1], numbersMatch[2], numbersMatch[3]);
+    } else {
+      console.log("No numbers found in response");
     }
 
     // Get the top 3 matched pets
     const matchedPets = petNumbers.slice(0, 3).map(index => petsWithPosts[index]).filter(Boolean);
+    
+    console.log("Pet numbers found:", petNumbers);
+    console.log("Matched pets count:", matchedPets.length);
+    console.log("AI response text:", text);
 
     res.json({
       success: true,
