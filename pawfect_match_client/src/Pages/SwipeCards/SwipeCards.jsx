@@ -56,7 +56,7 @@ const SwipeCards = () => {
   const [shouldRestack, setShouldRestack] = useState(false);
 
   // Fetch cards from backend
-  const fetchCards = async () => {
+  const fetchCards = async (forceRefresh = false) => {
     try {
       if (!user?.email) {
         toast.error('Please login to view cards');
@@ -64,7 +64,8 @@ const SwipeCards = () => {
       }
 
       setLoading(true);
-      const response = await axiosPublic.get(`/swipecards?userId=${user.uid}`);
+      const refreshParam = forceRefresh ? '&refresh=true' : '';
+      const response = await axiosPublic.get(`/swipecards?userId=${user.uid}${refreshParam}`);
       
       if (response.data.cards && response.data.cards.length > 0) {
         console.log('Cards received:', response.data.cards);
@@ -108,11 +109,11 @@ const SwipeCards = () => {
       setCards(prev => prev.filter((_, index) => index !== activeCard));
 
       // If we need to restack or no more cards, fetch new ones
-      if (response.data.shouldRestack || response.data.remainingCards === 0) {
-        setTimeout(() => {
-          fetchCards();
-        }, 500);
-      } else {
+              if (response.data.shouldRestack || response.data.remainingCards === 0) {
+          setTimeout(() => {
+            fetchCards(false);
+          }, 500);
+        } else {
         // Move to next card
         setCardKey(prev => prev + 1);
         setTimeout(() => {
@@ -219,9 +220,18 @@ const SwipeCards = () => {
           <p className="text-sm text-gray-500 font-medium mb-1">
             Discover your next furry friend!
           </p>
-          <p className="text-xs text-gray-400">
-            {remainingCards} cards remaining
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-400">
+              {remainingCards} cards remaining
+            </p>
+            <button
+              onClick={() => fetchCards(true)}
+              className="text-xs bg-orange-500 text-white px-3 py-1 rounded-full hover:bg-orange-600 transition-colors"
+              title="Get fresh cards"
+            >
+              🔄 Refresh
+            </button>
+          </div>
         </div>
         
         {/* Card */}

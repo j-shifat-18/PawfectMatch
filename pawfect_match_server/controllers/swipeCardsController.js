@@ -8,6 +8,9 @@ const petsCollection = client.db("pawfect_match").collection("pets");
 // In-memory storage for user card stacks
 const userCardStacks = new Map();
 
+// Track recently shown cards to avoid repetition
+const recentlyShownCards = new Map();
+
 // Get cards for swiping
 const getSwipeCards = async (req, res) => {
   try {
@@ -23,8 +26,11 @@ const getSwipeCards = async (req, res) => {
     // Check if user has an existing stack
     let userStack = userCardStacks.get(userId);
     
-    // If no stack exists or stack has 3-4 cards left, create new stack
-    if (!userStack || userStack.length <= 4) {
+    // Check if user wants fresh cards (force refresh)
+    const forceRefresh = req.query.refresh === 'true';
+    
+    // If no stack exists, stack has 3-4 cards left, or force refresh requested
+    if (!userStack || userStack.length <= 4 || forceRefresh) {
       // Get all available adoption posts with pet info
       const allPosts = await adoptionPostsCollection
         .find({})
@@ -52,8 +58,32 @@ const getSwipeCards = async (req, res) => {
         });
       }
 
-      // Take first 10 posts and get their pet info
-      const postsToShow = availablePosts.slice(0, 10);
+      // Get recently shown cards for this user
+      const userRecentlyShown = recentlyShownCards.get(userId) || [];
+      
+      // Filter out recently shown cards (show them again only after 20 other cards)
+      const postsToAvoid = availablePosts.filter(post => 
+        userRecentlyShown.includes(post._id.toString())
+      );
+      
+      // If we have enough posts, avoid recently shown ones
+      const postsToConsider = availablePosts.length > 20 ? 
+        availablePosts.filter(post => !userRecentlyShown.includes(post._id.toString())) :
+        availablePosts;
+
+      // Fisher-Yates shuffle for better randomness
+      const shuffleArray = (array) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      };
+      
+      // Shuffle the available posts and take first 10
+      const shuffledPosts = shuffleArray(postsToConsider);
+      const postsToShow = shuffledPosts.slice(0, 10);
       const petIds = postsToShow.map(post => post.petId);
       
       // Get pet information for these posts
@@ -128,6 +158,16 @@ const handleSwipe = async (req, res) => {
     // Remove the card from stack
     userStack.splice(cardIndex, 1);
     userCardStacks.set(userId, userStack);
+
+    // Track this card as recently shown
+    const userRecentlyShown = recentlyShownCards.get(userId) || [];
+    userRecentlyShown.push(cardId);
+    
+    // Keep only the last 20 recently shown cards
+    if (userRecentlyShown.length > 20) {
+      userRecentlyShown.splice(0, userRecentlyShown.length - 20);
+    }
+    recentlyShownCards.set(userId, userRecentlyShown);
 
     // If swiped right, add to favorites
     if (direction === 'right') {
