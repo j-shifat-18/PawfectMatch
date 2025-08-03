@@ -27,6 +27,7 @@ import Cart from "../Pages/Cart/Cart";
 import CheckoutWrapper from "../Pages/Checkout/CheckoutWrapper";
 import MyOrders from "../Pages/MyOrders/MyOrders";
 import Chat from "../Pages/Chat/Chat";
+import SwipeCards from "../Pages/SwipeCards/SwipeCards";
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
       {
         path: "favourites",
         element: <Favourites></Favourites>,
+      },
+      {
+        path: "SwipeCards",
+        element: <SwipeCards></SwipeCards>,
       },
       {
         path: "order/cart",
