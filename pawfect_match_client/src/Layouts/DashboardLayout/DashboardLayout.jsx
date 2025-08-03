@@ -89,7 +89,7 @@ const DashboardLayout = () => {
             </div>
 
             {/* User navigation */}
-            {userRole?.role === "admin" && (
+            {userRole?.role === "user" && (
               <>
                 <li>
                   <NavLink

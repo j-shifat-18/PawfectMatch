@@ -90,14 +90,14 @@ const adoptionPostsCollection = client.db("pawfect_match").collection("adoption-
 
 const getAIMatches = async (req, res) => {
   try {
-    console.log("getAIMatches called with query:", req.query);
+    // console.log("getAIMatches called with query:", req.query);
     const { userId } = req.query;
     
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
     }
 
-    console.log("Using userId:", userId);
+    // console.log("Using userId:", userId);
 
     // Check if API key is available
     if (!process.env.GOOGLE_API_KEY) {
@@ -120,7 +120,7 @@ const getAIMatches = async (req, res) => {
 
     // Get random 20 pets with their adoption posts
     const allPets = await petsCollection.find({}).toArray();
-    console.log("Total pets found:", allPets.length);
+    // console.log("Total pets found:", allPets.length);
     
     if (allPets.length === 0) {
       return res.status(404).json({ 
@@ -129,7 +129,7 @@ const getAIMatches = async (req, res) => {
     }
     
     const randomPets = allPets.sort(() => Math.random() - 0.5).slice(0, 20);
-    console.log("Random pets selected:", randomPets.length);
+    // console.log("Random pets selected:", randomPets.length);
     
     // Get adoption posts for these pets
     const petIds = randomPets.map(pet => pet._id.toString());
@@ -137,8 +137,8 @@ const getAIMatches = async (req, res) => {
       .find({ petId: { $in: petIds } })
       .toArray();
     
-    console.log("Adoption posts found:", adoptionPosts.length);
-    console.log("Pet IDs:", petIds);
+    // console.log("Adoption posts found:", adoptionPosts.length);
+    // console.log("Pet IDs:", petIds);
 
     // Create pet map
     const petMap = {};
@@ -152,11 +152,11 @@ const getAIMatches = async (req, res) => {
       petInfo: petMap[post.petId] || {}
     }));
     
-    console.log("Pets with posts:", petsWithPosts.length);
+    // console.log("Pets with posts:", petsWithPosts.length);
     
     // If no adoption posts found, create posts from pets directly
     if (petsWithPosts.length === 0) {
-      console.log("No adoption posts found, creating posts from pets directly");
+      // console.log("No adoption posts found, creating posts from pets directly");
       petsWithPosts = randomPets.map(pet => ({
         _id: pet._id.toString(),
         petId: pet._id.toString(),
@@ -229,7 +229,7 @@ IMPORTANT: Return ONLY the numbers of the top 3 pets separated by commas (e.g., 
     const text = response.text();
 
     // Parse the response to extract pet numbers
-    console.log("Raw AI response:", text);
+    // console.log("Raw AI response:", text);
     
     // Extract numbers from the response (should be just "1,2,3" format)
     const numbersMatch = text.trim().match(/^(\d+),?\s*(\d+),?\s*(\d+)/);
@@ -241,7 +241,7 @@ IMPORTANT: Return ONLY the numbers of the top 3 pets separated by commas (e.g., 
         parseInt(numbersMatch[2]) - 1,
         parseInt(numbersMatch[3]) - 1
       );
-      console.log("Extracted numbers:", numbersMatch[1], numbersMatch[2], numbersMatch[3]);
+      // console.log("Extracted numbers:", numbersMatch[1], numbersMatch[2], numbersMatch[3]);
     } else {
       console.log("No numbers found in response");
     }
@@ -249,9 +249,9 @@ IMPORTANT: Return ONLY the numbers of the top 3 pets separated by commas (e.g., 
     // Get the top 3 matched pets
     const matchedPets = petNumbers.slice(0, 3).map(index => petsWithPosts[index]).filter(Boolean);
     
-    console.log("Pet numbers found:", petNumbers);
-    console.log("Matched pets count:", matchedPets.length);
-    console.log("AI response text:", text);
+    // console.log("Pet numbers found:", petNumbers);
+    // console.log("Matched pets count:", matchedPets.length);
+    // console.log("AI response text:", text);
 
     res.json({
       success: true,

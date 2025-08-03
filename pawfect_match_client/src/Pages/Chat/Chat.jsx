@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 import useAuth from '../../Hooks/useAuth';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 
-const SOCKET_URL = 'http://localhost:3000';
+const SOCKET_URL = 'https://pawfect-match-server.vercel.app';
 
 const Chat = () => {
   const { user } = useAuth();
@@ -134,18 +134,18 @@ const Chat = () => {
       socketRef.current.emit('join', user.email);
       
       socketRef.current.on('receive_message', (msg) => {
-        console.log('Received socket message:', msg);
+ 
         
         // Update messages if it's for the current conversation
         if (
           (msg.fromEmail === user.email && msg.toEmail === selectedUser) ||
           (msg.fromEmail === selectedUser && msg.toEmail === user.email)
         ) {
-          console.log('Processing message for current conversation');
+       
           setMessages((prev) => {
             // For messages from current user, replace any temporary messages with the real one
             if (msg.fromEmail === user.email) {
-              console.log('Replacing temporary message with real one');
+            
               // Remove any temporary messages with the same content
               const filteredMessages = prev.filter(existingMsg => 
                 !(existingMsg.isSending && existingMsg.content === msg.content)
@@ -159,7 +159,7 @@ const Chat = () => {
           
           // Clear sending state for current user's messages
           if (msg.fromEmail === user.email) {
-            console.log('Clearing sending state');
+         
             setSendingMessages(prev => {
               const newSet = new Set(prev);
               // Clear all sending messages since we got confirmation

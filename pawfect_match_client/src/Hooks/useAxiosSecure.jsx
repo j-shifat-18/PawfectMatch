@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 const axiosSecure = axios.create({
-  baseURL: 'http://localhost:3000', 
+  baseURL: 'https://pawfect-match-server.vercel.app', 
 });
 
 const useAxiosSecure = () => {

@@ -160,7 +160,7 @@ const onSubmit = async (data) => {
     };
 
     const online = await isActuallyOnline();
-    console.log("Is actually online?", online);
+   
 
     if (online) {
       // Upload image to imgbb

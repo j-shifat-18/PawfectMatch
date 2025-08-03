@@ -3,3 +3,4 @@ node_modules
 firebase-adminsdk-config.json
 keyConvert.js
 test.js
+.vercel

@@ -90,14 +90,14 @@ const preloadNewCards = async (userId) => {
 // Get cards for swiping
 const getSwipeCards = async (req, res) => {
   try {
-    console.log("getSwipeCards called with query:", req.query);
+    // console.log("getSwipeCards called with query:", req.query);
     const { userId } = req.query;
     
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
     }
 
-    console.log("Using userId:", userId);
+    // console.log("Using userId:", userId);
 
     // Check if user has an existing stack
     let userStack = userCardStacks.get(userId);
@@ -118,7 +118,7 @@ const getSwipeCards = async (req, res) => {
         if (newCards.length > 0) {
           const currentStack = userCardStacks.get(userId) || [];
           userCardStacks.set(userId, [...currentStack, ...newCards]);
-          console.log(`Preloaded ${newCards.length} new cards for user ${userId}`);
+          // console.log(`Preloaded ${newCards.length} new cards for user ${userId}`);
         }
       });
     }
@@ -186,7 +186,7 @@ const handleSwipe = async (req, res) => {
     // If swiped right, add to favorites
     if (direction === 'right') {
       try {
-        console.log("Adding to favorites - userId:", userId, "postId:", cardId);
+        // console.log("Adding to favorites - userId:", userId, "postId:", cardId);
         // Check if already in favorites
         const existing = await favoritesCollection.findOne({ 
           userId, 
@@ -199,7 +199,7 @@ const handleSwipe = async (req, res) => {
             postId: cardId,
             createdAt: new Date(),
           });
-          console.log("Added to favorites successfully:", result);
+          // console.log("Added to favorites successfully:", result);
         } else {
           console.log("Already in favorites");
         }

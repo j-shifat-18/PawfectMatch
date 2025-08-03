@@ -20,10 +20,10 @@ const Login = () => {
   const { loginUser, signInWithGoogle } = useAuth();
 
   const handleLogin = (data) => {
-    console.log(data);
+
     loginUser(data.email, data.password)
       .then(async (result) => {
-        console.log(result.user);
+   
         const user = result.user;
         const userInfo = {
           email: user.email,
@@ -51,7 +51,7 @@ const Login = () => {
   const handleGoogleLogin = () => {
     signInWithGoogle()
       .then(async (result) => {
-        console.log(result);
+       
         const user = result.user;
         const userInfo = {
           name: user.displayName,
@@ -62,7 +62,7 @@ const Login = () => {
         };
 
         const userRes = await axiosPublic.post("/users", userInfo);
-        console.log(userRes);
+      
 
         Swal.fire({
           position: "top-end",

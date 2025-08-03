@@ -47,7 +47,6 @@ const UserProfile = () => {
     enabled: !!profileUser._id,
   });
 
-  console.log(pets);
 
   const handleUpdateProfile = async (data) => {
     try {

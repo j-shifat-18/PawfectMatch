@@ -30,10 +30,10 @@ const Register = () => {
   // };
 
   const handleRegister = (data) => {
-    console.log(data);
+   
     createUser(data.email, data.password)
       .then(async () => {
-        // console.log(result.user);
+       
 
         const userInfo = {
           name: data.name,
@@ -45,7 +45,7 @@ const Register = () => {
         };
 
         const userRes = await axiosPublic.post("/users", userInfo);
-        console.log(userRes);
+      
 
         const name = data.name;
         const image = profilePic;
@@ -73,7 +73,7 @@ const Register = () => {
   const handleGoogleLogin = () => {
     signInWithGoogle()
       .then(async (result) => {
-        console.log(result);
+     
         const user = result.user;
         const userInfo = {
           name: user.displayName,
@@ -100,7 +100,7 @@ const Register = () => {
 
   const handleImageUpload = async (e) => {
     const image = e.target.files[0];
-    // console.log(image)
+
     const formData = new FormData();
     formData.append("image", image);
     const imageUploadURL = `https://api.imgbb.com/1/upload?key=${
