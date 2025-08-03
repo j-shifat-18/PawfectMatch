@@ -28,6 +28,7 @@ import CheckoutWrapper from "../Pages/Checkout/CheckoutWrapper";
 import MyOrders from "../Pages/MyOrders/MyOrders";
 import Chat from "../Pages/Chat/Chat";
 import SwipeCards from "../Pages/SwipeCards/SwipeCards";
+import ForgetPassword from "../Pages/Auth/ForgetPassword/ForgetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -99,6 +100,10 @@ export const router = createBrowserRouter([
         path: "register",
         element: <Register></Register>,
       },
+      {
+        path:"forgetPassword",
+        element:<ForgetPassword></ForgetPassword>
+      }
     ],
   },
   {

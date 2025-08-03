@@ -117,21 +117,27 @@ const AdoptionCard = ({
           {availabilityBadge}
         </div>
 
-        <div className="flex flex-col gap-2 items-center justify-between mt-4">
+        <div className=" space-y-2 mt-4">
           {post.ownerEmail && (
             <button
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600  text-white px-4 py-2 rounded-lg mr-2"
-              onClick={() => navigate('/chat', { state: { recipientEmail: post.ownerEmail } })}
+              className="w-full btn bg-gradient-to-r from-cyan-400 to-blue-500 btn-sm px-6 py-2 rounded-full font-semibold hover:bg-gradient-to-l hover:from-cyan-400 hover:to-blue-500 text-white text-base transition-colors"
+              onClick={() =>
+                navigate("/chat", {
+                  state: { recipientEmail: post.ownerEmail },
+                })
+              }
             >
               Message Owner
             </button>
           )}
           <button
-            className={`bg-gradient-to-r from-primary w-full to-orange-400 hover:from-orange-600 text-white px-4 py-2 rounded-lg ${isAlreadyRequested ? 'opacity-60 cursor-not-allowed' : ''}`}
+            className={`w-full btn btn-primary text-base btn-sm px-6 py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors ${
+              isAlreadyRequested ? "opacity-60 cursor-not-allowed" : ""
+            }`}
             onClick={handleAdoptionRequest}
             disabled={isAlreadyRequested}
           >
-            {isAlreadyRequested ? 'Requested' : 'Request Adoption'}
+            {isAlreadyRequested ? "Requested" : "Request Adoption"}
           </button>
         </div>
       </div>

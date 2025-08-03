@@ -9,7 +9,7 @@ const { verifyFBToken } = require("../middlewares/authMiddleware");
 const { verifyAdmin } = require("../middlewares/verifyAdmin");
 
 // GET /users - Get users with optional filtering
-router.get("/",verifyFBToken ,verifyAdmin , getUsers);
+router.get("/",verifyFBToken , getUsers);
 
 // POST /users - Create new user
 router.post("/", createUser);

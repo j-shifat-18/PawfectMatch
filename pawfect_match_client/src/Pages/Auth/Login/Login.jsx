@@ -122,7 +122,7 @@ const Login = () => {
             <p className="text-red-500 text-base">Please enter Password .</p>
           )}
           <div>
-            <Link to="/forgetPassword" className="link link-hover text-base">
+            <Link to="/auth/forgetPassword" className="link link-hover text-base">
               Forget password ?{" "}
             </Link>
           </div>
