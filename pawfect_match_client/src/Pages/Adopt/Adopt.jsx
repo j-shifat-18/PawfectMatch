@@ -74,7 +74,7 @@ const Adopt = () => {
     queryKey: ["favorites", user?.uid],
     enabled: !!user,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/favorites/${user.uid}`);
+      const res = await axiosSecure.get(`/favorites/${user.uid}`);
       setFavorites(res.data);
       return res.data;
     },

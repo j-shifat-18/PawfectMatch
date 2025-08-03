@@ -19,6 +19,7 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const [error, setError] = useState(null);
+  const [isLoading , setIsLoading] = useState(false);
 
   useEffect(() => {
     axiosSecure.get(`/orders/${id}`).then((res) => {
@@ -56,6 +57,7 @@ const Checkout = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     if (!stripe || !elements || !order) return;
 
     const result = await stripe.confirmCardPayment(clientSecret, {
@@ -93,6 +95,8 @@ const Checkout = () => {
 
         // 2. Update order status
         await axiosSecure.patch(`/orders/paid/${id}`);
+
+        setIsLoading(false);
 
         Swal.fire("Success", "Payment completed!", "success");
         navigate("/dashboard/my-orders");
@@ -136,9 +140,9 @@ const Checkout = () => {
         <button
           className="btn btn-primary mt-4 w-full"
           type="submit"
-          disabled={!stripe || !clientSecret}
+          disabled={!stripe || !clientSecret || isLoading}
         >
-          Pay ${finalPrice.toFixed(2)}
+          {isLoading ? "Payment processing...":`Pay ${finalPrice.toFixed(2)}`}
         </button>
       </form>
     </div>

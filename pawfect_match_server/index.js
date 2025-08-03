@@ -43,6 +43,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const http = require("http");
 const { Server } = require("socket.io");
+const { verifyAdmin } = require("./middlewares/verifyAdmin");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -136,14 +137,14 @@ app.get("/debug-routes", (req, res) => {
 // Legacy coupon validation route for backward compatibility
 app.get("/validate-coupon/:code", validateCoupon);
 
-app.get("/my-adoption-requests/:email", getMyAdoptionRequests);
+app.get("/my-adoption-requests/:email", verifyFBToken, getMyAdoptionRequests);
 
 
 // Legacy adoption post route for backward compatibility
 app.post("/adoptionPosts", createAdoptionPost);
 
 // Payment intent creation
-app.post("/create-payment-intent", async (req, res) => {
+app.post("/create-payment-intent",verifyFBToken, async (req, res) => {
   const { price } = req.body;
   const amount = Math.round(price * 100); // in cents
 
@@ -159,12 +160,12 @@ app.post("/create-payment-intent", async (req, res) => {
 
 const paymentsCollection = client.db("pawfect_match").collection("payments");
 
-app.get('/payments' , async(req , res)=>{
+app.get('/payments' ,verifyFBToken,verifyAdmin, async(req , res)=>{
   const result = await paymentsCollection.find().toArray();
   res.send(result);
 })
 
-app.post('/payments', async (req, res) => {
+app.post('/payments',verifyFBToken, async (req, res) => {
   try {
     const db = req.app.locals.db; // Get db from app.locals
     const paymentData = req.body;

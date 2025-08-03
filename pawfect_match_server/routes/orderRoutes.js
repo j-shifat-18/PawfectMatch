@@ -14,13 +14,13 @@ const { verifyFBToken } = require("../middlewares/authMiddleware");
 router.get("/",verifyFBToken, getPaidOrders);
 
 // GET /orders/:id - Get order by ID
-router.get("/:id",verifyFBToken,verifyAdmin, getOrderById);
+router.get("/:id",verifyFBToken, getOrderById);
 
 // POST /orders - Create new order
-router.post("/",verifyFBToken,verifyAdmin, createOrder);
+router.post("/",verifyFBToken, createOrder);
 
 // PATCH /orders/paid/:id - Mark order as paid
-router.patch("/paid/:id",verifyFBToken,verifyAdmin, markOrderAsPaid);
+router.patch("/paid/:id",verifyFBToken, markOrderAsPaid);
 
 // PATCH /orders/:id - Update delivery status
 router.patch("/:id",verifyFBToken,verifyAdmin, updateDeliveryStatus);
