@@ -21,6 +21,7 @@ const couponRoutes = require("./routes/couponRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const swipeCardsRoutes = require("./routes/swipeCardsRoutes");
 const { validateCoupon } = require("./controllers/couponController");
 const { createAdoptionPost } = require("./controllers/adoptionController");
 const { getMyAdoptionRequests } = require("./controllers/adoptionRequestController");
@@ -76,6 +77,49 @@ app.use("/coupons", couponRoutes);
 app.use("/cart", cartRoutes);
 app.use("/chat", chatRoutes);
 app.use("/ai", aiRoutes);
+app.use("/swipecards", swipeCardsRoutes);
+
+// Test endpoint to verify server is running
+app.get("/test-swipe", (req, res) => {
+  res.json({ message: "Swipe cards server is running" });
+});
+
+// Debug endpoint to check favorites
+app.get("/debug-favorites", async (req, res) => {
+  try {
+    const favorites = await client.db("pawfect_match").collection("favourites").find({}).toArray();
+    res.json({ 
+      message: "Favorites collection contents", 
+      count: favorites.length,
+      favorites: favorites.slice(0, 5) // Show first 5
+    });
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
+// Debug endpoint to check all routes
+app.get("/debug-routes", (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods)
+      });
+    } else if (middleware.name === 'router') {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          routes.push({
+            path: handler.route.path,
+            methods: Object.keys(handler.route.methods)
+          });
+        }
+      });
+    }
+  });
+  res.json({ routes });
+});
 
 // Legacy coupon validation route for backward compatibility
 app.get("/validate-coupon/:code", validateCoupon);
@@ -152,6 +196,15 @@ app.post('/payments', async (req, res) => {
 // Root endpoint
 app.get("/", (req, res) => {
   res.send("Hello World!");
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString(),
+    message: "Server is running"
+  });
 });
 
 app.get('/ping', (req, res) => {

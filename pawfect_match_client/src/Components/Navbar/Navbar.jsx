@@ -50,6 +50,9 @@ const Navbar = () => {
       <NavLink to="/favourites" className={linkClass}>
         Favourites
       </NavLink>
+      <NavLink to="/SwipeCards" className={linkClass}>
+        Swipe Cards
+      </NavLink>
     </>
   );
 

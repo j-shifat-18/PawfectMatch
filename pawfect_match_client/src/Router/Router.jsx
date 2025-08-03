@@ -54,7 +54,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "SwipeCards",
-        element: <SwipeCards></SwipeCards>,
+        element: (
+          <UserProtectedRoute>
+            <SwipeCards></SwipeCards>
+          </UserProtectedRoute>
+        ),
       },
       {
         path: "order/cart",
