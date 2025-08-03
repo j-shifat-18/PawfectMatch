@@ -117,17 +117,17 @@ const AdoptionCard = ({
           {availabilityBadge}
         </div>
 
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex flex-col gap-2 items-center justify-between mt-4">
           {post.ownerEmail && (
             <button
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mr-2"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600  text-white px-4 py-2 rounded-lg mr-2"
               onClick={() => navigate('/chat', { state: { recipientEmail: post.ownerEmail } })}
             >
               Message Owner
             </button>
           )}
           <button
-            className={`bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg ${isAlreadyRequested ? 'opacity-60 cursor-not-allowed' : ''}`}
+            className={`bg-gradient-to-r from-primary w-full to-orange-400 hover:from-orange-600 text-white px-4 py-2 rounded-lg ${isAlreadyRequested ? 'opacity-60 cursor-not-allowed' : ''}`}
             onClick={handleAdoptionRequest}
             disabled={isAlreadyRequested}
           >
