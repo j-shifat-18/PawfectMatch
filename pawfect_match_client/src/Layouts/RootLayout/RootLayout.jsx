@@ -31,7 +31,7 @@ const RootLayout = () => {
         <Navbar></Navbar>
         <div className="h-20"></div>
       </header>
-      <main>
+      <main className="min-h-screen">
         <Outlet></Outlet>
       </main>
       {shouldShowFooter && (

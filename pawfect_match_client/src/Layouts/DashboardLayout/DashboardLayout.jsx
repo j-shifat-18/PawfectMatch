@@ -1,5 +1,6 @@
 import { FaBars, FaPaw } from "react-icons/fa";
 import { NavLink, Outlet } from "react-router";
+import { RiHandHeartLine } from "react-icons/ri";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -8,10 +9,6 @@ import {
   Users,
   FileSignature,
   BadgePercent,
-  Megaphone,
-  CreditCard,
-  ReceiptText,
-  UserCircle,
   Cat,
   UserPen,
   FolderPlus,
@@ -106,7 +103,7 @@ const DashboardLayout = () => {
                     className={linkClass}
                   >
                     <Cat className="w-5 h-5" />
-                    Create Pet Account
+                    Create Pet Profile
                   </NavLink>
                 </li>
                 <li>
@@ -120,7 +117,7 @@ const DashboardLayout = () => {
                     to="/dashboard/adoption-requests"
                     className={linkClass}
                   >
-                    <FaPaw className="w-5 h-5" />
+                    <RiHandHeartLine className="w-5 h-5" />
                     Adoption Requests
                   </NavLink>
                 </li>

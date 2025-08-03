@@ -57,7 +57,7 @@ const Checkout = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+   
     if (!stripe || !elements || !order) return;
 
     const result = await stripe.confirmCardPayment(clientSecret, {
@@ -74,6 +74,7 @@ const Checkout = () => {
       setError(result.error.message);
     } else {
       if (result.paymentIntent.status === "succeeded") {
+         setIsLoading(true);
         // 1. Save payment info to /payments
         const paymentData = {
           orderId: order._id,
@@ -109,7 +110,7 @@ const Checkout = () => {
   const finalPrice = order.price - (order.price * discountPercent) / 100;
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white/70 shadow rounded-xl z-10 relative">
+    <div className="max-w-xl h-fit mx-auto p-6 bg-white/70 shadow rounded-xl z-10 relative">
       <h2 className="text-2xl font-bold mb-4">Checkout</h2>
 
       <p className="mb-2">Product: {order.productName}</p>

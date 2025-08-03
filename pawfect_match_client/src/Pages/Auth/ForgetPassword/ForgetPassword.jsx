@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../Hooks/useAuth";
 import Swal from "sweetalert2";
+import { Link } from "react-router";
 
 const ForgetPassword = () => {
   const {
@@ -39,6 +40,7 @@ const ForgetPassword = () => {
   return (
     <div className="card text-black  w-full max-w-md shrink-0 ">
       <div className="card-body">
+        <Link to='/' className="btn bg-primary font-medium text-lg rounded-full hover:bg-accent text-white w-1/2">Go To Homepage</Link>
         <h1 className="text-4xl font-extrabold">Forget Password?</h1>
         <p className="font-medium text-lg mb-5">Send Reset Email</p>
         <form

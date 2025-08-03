@@ -80,6 +80,7 @@ const Login = () => {
   return (
     <div className="card text-black  w-full max-w-md shrink-0 ">
       <div className="card-body">
+        <Link to='/' className="btn bg-primary font-medium text-lg rounded-full hover:bg-accent text-white w-1/2">Go To Homepage</Link>
         <h1 className="text-4xl font-extrabold">Welcome Back</h1>
         <p className="font-medium text-lg mb-5">Login with PawfectMatch</p>
         <form className="fieldset" onSubmit={handleSubmit(handleLogin)}>

@@ -6,6 +6,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import { toast } from "react-toastify";
 
 const Shop = () => {
   const axiosPublic = useAxiosPublic();
@@ -26,7 +27,7 @@ const Shop = () => {
   });
 
   const handleAddToCart = async (product) => {
-    if (!user) return Swal.fire("Please login to add to cart");
+    if (!user) return toast.error("You must be logged in to favorite a post.");
 
     const order = {
       productId: product._id,

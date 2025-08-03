@@ -34,7 +34,7 @@ const testimonials = [
 const Testimonials = () => {
   return (
     <motion.div
-      className="mt-24 text-center"
+      className="mt-24 max-w-6xl mx-auto px-4 text-center"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
