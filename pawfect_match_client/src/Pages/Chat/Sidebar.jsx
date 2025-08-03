@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
 
 const Sidebar = ({ threads, selectedUser, setSelectedUser, userEmail, onStartNewChat, selectedUserInfo }) => {
+  const axiosSecure = useAxiosSecure();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -39,8 +41,8 @@ const Sidebar = ({ threads, selectedUser, setSelectedUser, userEmail, onStartNew
 
     setIsSearching(true);
     try {
-      const response = await fetch(`http://localhost:3000/users?search=${encodeURIComponent(query)}`);
-      const users = await response.json();
+      const response = await axiosSecure.get(`/users?search=${encodeURIComponent(query)}`);
+      const users = response.data;
       
       // Filter out current user, users already in threads, and currently selected user
       const filteredUsers = users.filter(user => 

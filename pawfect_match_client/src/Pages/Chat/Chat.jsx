@@ -4,11 +4,13 @@ import Sidebar from './Sidebar';
 import Conversation from './Conversation';
 import { io } from 'socket.io-client';
 import useAuth from '../../Hooks/useAuth';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
 
 const SOCKET_URL = 'http://localhost:3000';
 
 const Chat = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const location = useLocation();
   const navigate = useNavigate();
   const [threads, setThreads] = useState([]);
@@ -28,9 +30,8 @@ const Chat = () => {
   // Function to fetch user information for a specific email
   const fetchUserInfo = async (email) => {
     try {
-      const response = await fetch(`http://localhost:3000/users?email=${email}`);
-      const userData = await response.json();
-      return userData;
+      const response = await axiosSecure.get(`/users?email=${email}`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching user info:', error);
       return null;
@@ -94,8 +95,8 @@ const Chat = () => {
   const fetchThreads = async () => {
     if (user?.email) {
       try {
-        const response = await fetch(`http://localhost:3000/chat/threads?email=${user.email}`);
-        const updatedThreads = await response.json();
+        const response = await axiosSecure.get(`/chat/threads?email=${user.email}`);
+        const updatedThreads = response.data;
         setThreads(updatedThreads);
       } catch (error) {
         console.error('Error fetching threads:', error);
@@ -185,9 +186,9 @@ const Chat = () => {
   // Fetch messages when selectedUser changes
   useEffect(() => {
     if (user?.email && selectedUser) {
-      fetch(`http://localhost:3000/chat/messages?user1=${user.email}&user2=${selectedUser}`)
-        .then((res) => res.json())
-        .then(setMessages);
+      axiosSecure.get(`/chat/messages?user1=${user.email}&user2=${selectedUser}`)
+        .then((res) => setMessages(res.data))
+        .catch((error) => console.error('Error fetching messages:', error));
     }
   }, [user, selectedUser]);
 
@@ -215,11 +216,8 @@ const Chat = () => {
     setSendingMessages(prev => new Set(prev).add(tempId));
     
     socketRef.current.emit('send_message', msg);
-    fetch('http://localhost:3000/chat/message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(msg),
-    });
+    axiosSecure.post('/chat/message', msg)
+      .catch((error) => console.error('Error sending message:', error));
     
     // Update threads immediately for sent messages
     updateThreadsWithMessage(msg);
