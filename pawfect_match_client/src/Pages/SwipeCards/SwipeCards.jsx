@@ -52,7 +52,6 @@ const SwipeCards = () => {
   const [direction, setDirection] = useState("right");
   const [isDragging, setIsDragging] = useState(false);
   const [cardKey, setCardKey] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [remainingCards, setRemainingCards] = useState(0);
   const [shouldRestack, setShouldRestack] = useState(false);
   const [showAIMatches, setShowAIMatches] = useState(false);
@@ -68,7 +67,6 @@ const SwipeCards = () => {
         return;
       }
 
-      setLoading(true);
       const refreshParam = forceRefresh ? '&refresh=true' : '';
       const response = await axiosPublic.get(`/swipecards?userId=${user.uid}${refreshParam}`);
       
@@ -85,8 +83,6 @@ const SwipeCards = () => {
     } catch (error) {
       console.error('Error fetching cards:', error);
       toast.error('Failed to load cards');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,18 +109,11 @@ const SwipeCards = () => {
       // Remove current card from stack
       setCards(prev => prev.filter((_, index) => index !== activeCard));
 
-      // If we need to restack or no more cards, fetch new ones
-              if (response.data.shouldRestack || response.data.remainingCards === 0) {
-          setTimeout(() => {
-            fetchCards(false);
-          }, 500);
-        } else {
-        // Move to next card
+              // Move to next card
         setCardKey(prev => prev + 1);
         setTimeout(() => {
           setActiveCard(prev => Math.min(prev, cards.length - 2));
         }, 350);
-      }
 
     } catch (error) {
       console.error('Error handling swipe:', error);
@@ -220,22 +209,27 @@ const SwipeCards = () => {
 
   // Fetch cards on component mount
   useEffect(() => {
-    fetchCards();
+    if (user?.email) {
+      fetchCards();
+    }
   }, [user]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12"
-        style={{
-          background: "linear-gradient(135deg, #fff7ed 0%, #fde68a 60%, #fdba74 100%)"
-        }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading cards...</p>
-        </div>
-      </div>
-    );
-  }
+  // Background preloading when cards get low
+  useEffect(() => {
+    if (remainingCards <= 4 && user?.email) {
+      // Silently preload new cards in background
+      const preloadCards = async () => {
+        try {
+          await axiosPublic.get(`/swipecards?userId=${user.uid}`);
+        } catch (error) {
+          console.log('Background preload failed:', error);
+        }
+      };
+      preloadCards();
+    }
+  }, [remainingCards, user]);
+
+
 
   if (!user) {
     return (
@@ -278,7 +272,7 @@ const SwipeCards = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-12"
+      className="min-h-screen flex items-center justify-center px-4 py-8"
       style={{
         background: "linear-gradient(135deg, #fff7ed 0%, #fde68a 60%, #fdba74 100%)"
       }}
@@ -294,12 +288,9 @@ const SwipeCards = () => {
               Swipe & Match
             </span>
           </div>
-          <p className="text-sm text-gray-500 font-medium mb-1">
-            Discover your next furry friend!
-          </p>
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-400">
-              {remainingCards} cards remaining
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm text-gray-500 font-medium">
+              Discover your next furry friend!
             </p>
             <button
               onClick={() => fetchCards(true)}

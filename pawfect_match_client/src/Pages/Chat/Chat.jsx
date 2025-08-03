@@ -242,22 +242,24 @@ const Chat = () => {
   };
 
   return (
-    <div style={{ display: 'flex', height: '80vh', border: '1px solid #ccc', borderRadius: 8, overflow: 'hidden' }}>
-      <Sidebar
-        threads={threads}
-        selectedUser={selectedUser}
-        setSelectedUser={setSelectedUser}
-        userEmail={user?.email}
-        onStartNewChat={handleStartNewChat}
-        selectedUserInfo={selectedUserInfo}
-      />
-      <Conversation
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        selectedUser={selectedUser}
-        selectedUserInfo={selectedUserInfo}
-        userEmail={user?.email}
-      />
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 100px)' }}>
+      <div className="flex flex-1" style={{ border: '1px solid #ccc', borderRadius: 8, overflow: 'hidden' }}>
+        <Sidebar
+          threads={threads}
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
+          userEmail={user?.email}
+          onStartNewChat={handleStartNewChat}
+          selectedUserInfo={selectedUserInfo}
+        />
+        <Conversation
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          selectedUser={selectedUser}
+          selectedUserInfo={selectedUserInfo}
+          userEmail={user?.email}
+        />
+      </div>
     </div>
   );
 };

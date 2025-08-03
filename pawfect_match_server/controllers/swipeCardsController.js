@@ -11,6 +11,82 @@ const userCardStacks = new Map();
 // Track recently shown cards to avoid repetition
 const recentlyShownCards = new Map();
 
+// Helper function to create a new card stack
+const createNewCardStack = async (userId) => {
+  // Get all available adoption posts with pet info
+  const allPosts = await adoptionPostsCollection
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  // Get user's existing favorites to avoid showing already favorited cards
+  const userFavorites = await favoritesCollection
+    .find({ userId })
+    .toArray();
+  
+  const favoritedPostIds = userFavorites.map(fav => fav.postId);
+
+  // Filter out already favorited posts
+  const availablePosts = allPosts
+    .filter(post => !favoritedPostIds.includes(post._id.toString()));
+
+  // If no posts available, return empty array
+  if (availablePosts.length === 0) {
+    return [];
+  }
+
+  // Get recently shown cards for this user
+  const userRecentlyShown = recentlyShownCards.get(userId) || [];
+  
+  // If we have enough posts, avoid recently shown ones
+  const postsToConsider = availablePosts.length > 20 ? 
+    availablePosts.filter(post => !userRecentlyShown.includes(post._id.toString())) :
+    availablePosts;
+
+  // Fisher-Yates shuffle for better randomness
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+  
+  // Shuffle the available posts and take first 10
+  const shuffledPosts = shuffleArray(postsToConsider);
+  const postsToShow = shuffledPosts.slice(0, 10);
+  const petIds = postsToShow.map(post => post.petId);
+  
+  // Get pet information for these posts
+  const pets = await petsCollection
+    .find({ _id: { $in: petIds.map(id => new ObjectId(id)) } })
+    .toArray();
+  
+  const petMap = {};
+  pets.forEach(pet => {
+    petMap[pet._id.toString()] = pet;
+  });
+
+  // Create new stack with pet info
+  return postsToShow.map(post => ({
+    ...post,
+    _id: post._id.toString(),
+    petInfo: petMap[post.petId] || {}
+  }));
+};
+
+// Helper function to preload new cards in background
+const preloadNewCards = async (userId) => {
+  try {
+    const newCards = await createNewCardStack(userId);
+    return newCards;
+  } catch (error) {
+    console.error("Error preloading cards:", error);
+    return [];
+  }
+};
+
 // Get cards for swiping
 const getSwipeCards = async (req, res) => {
   try {
@@ -29,84 +105,22 @@ const getSwipeCards = async (req, res) => {
     // Check if user wants fresh cards (force refresh)
     const forceRefresh = req.query.refresh === 'true';
     
-    // If no stack exists, stack has 3-4 cards left, or force refresh requested
-    if (!userStack || userStack.length <= 4 || forceRefresh) {
-      // Get all available adoption posts with pet info
-      const allPosts = await adoptionPostsCollection
-        .find({})
-        .sort({ createdAt: -1 })
-        .toArray();
-
-      // Get user's existing favorites to avoid showing already favorited cards
-      const userFavorites = await favoritesCollection
-        .find({ userId })
-        .toArray();
-      
-      const favoritedPostIds = userFavorites.map(fav => fav.postId);
-
-      // Filter out already favorited posts
-      const availablePosts = allPosts
-        .filter(post => !favoritedPostIds.includes(post._id.toString()));
-
-      // If no posts available, return empty array
-      if (availablePosts.length === 0) {
-        userCardStacks.set(userId, []);
-        return res.status(200).json({
-          cards: [],
-          remainingCards: 0,
-          shouldRestack: false
-        });
-      }
-
-      // Get recently shown cards for this user
-      const userRecentlyShown = recentlyShownCards.get(userId) || [];
-      
-      // Filter out recently shown cards (show them again only after 20 other cards)
-      const postsToAvoid = availablePosts.filter(post => 
-        userRecentlyShown.includes(post._id.toString())
-      );
-      
-      // If we have enough posts, avoid recently shown ones
-      const postsToConsider = availablePosts.length > 20 ? 
-        availablePosts.filter(post => !userRecentlyShown.includes(post._id.toString())) :
-        availablePosts;
-
-      // Fisher-Yates shuffle for better randomness
-      const shuffleArray = (array) => {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-      };
-      
-      // Shuffle the available posts and take first 10
-      const shuffledPosts = shuffleArray(postsToConsider);
-      const postsToShow = shuffledPosts.slice(0, 10);
-      const petIds = postsToShow.map(post => post.petId);
-      
-      // Get pet information for these posts
-      const pets = await petsCollection
-        .find({ _id: { $in: petIds.map(id => new ObjectId(id)) } })
-        .toArray();
-      
-      const petMap = {};
-      pets.forEach(pet => {
-        petMap[pet._id.toString()] = pet;
-      });
-
-      // Create new stack with pet info
-      userStack = postsToShow.map(post => ({
-        ...post,
-        _id: post._id.toString(),
-        petInfo: petMap[post.petId] || {}
-      }));
-      
-      console.log("Sample post structure:", userStack[0]);
-      console.log("Sample petInfo structure:", userStack[0]?.petInfo);
-      
+    // If no stack exists or force refresh requested, create new stack
+    if (!userStack || forceRefresh) {
+      userStack = await createNewCardStack(userId);
       userCardStacks.set(userId, userStack);
+    }
+    
+    // If stack has 4 or fewer cards, preload new cards in background
+    if (userStack.length <= 4) {
+      // Preload new cards without blocking the response
+      preloadNewCards(userId).then(newCards => {
+        if (newCards.length > 0) {
+          const currentStack = userCardStacks.get(userId) || [];
+          userCardStacks.set(userId, [...currentStack, ...newCards]);
+          console.log(`Preloaded ${newCards.length} new cards for user ${userId}`);
+        }
+      });
     }
 
     // Return current stack (up to 10 cards)

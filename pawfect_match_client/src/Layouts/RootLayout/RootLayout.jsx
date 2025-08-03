@@ -1,11 +1,17 @@
 import React from "react";
 import Navbar from "../../Components/Navbar/Navbar";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import Footer from "../../Components/Footer/Footer";
 import useOfflineSync from "../../Hooks/useOfflineSync";
 
 const RootLayout = () => {
   useOfflineSync();
+  const location = useLocation();
+  
+  // Pages where we don't want to show the footer
+  const noFooterPages = ['/SwipeCards', '/chat'];
+  const shouldShowFooter = !noFooterPages.some(page => location.pathname.includes(page));
+  
   return (
     <div className="min-h-screen w-full relative bg-white">
       {/* Soft Yellow Glow */}
@@ -28,9 +34,11 @@ const RootLayout = () => {
       <main>
         <Outlet></Outlet>
       </main>
-      <footer>
-        <Footer></Footer>
-      </footer>
+      {shouldShowFooter && (
+        <footer>
+          <Footer></Footer>
+        </footer>
+      )}
     </div>
   );
 };
