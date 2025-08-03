@@ -73,8 +73,6 @@ const SwipeCards = () => {
       const response = await axiosPublic.get(`/swipecards?userId=${user.uid}${refreshParam}`);
       
       if (response.data.cards && response.data.cards.length > 0) {
-        console.log('Cards received:', response.data.cards);
-        console.log('First card structure:', response.data.cards[0]);
         setCards(response.data.cards);
         setActiveCard(0);
         setRemainingCards(response.data.remainingCards);
@@ -274,16 +272,16 @@ const SwipeCards = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-8"
+      className=" flex items-center justify-center px-4 py-8"
       style={{
         background: "linear-gradient(135deg, #fff7ed 0%, #fde68a 60%, #fdba74 100%)"
       }}
     >
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-md space-y-4">
         {/* Header */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl font-extrabold tracking-tight text-gray-900 drop-shadow-sm">
+            <span className="text-3xl font-extrabold tracking-tight text-black drop-shadow-sm">
               Pet Cards
             </span>
             <span className="ml-2 px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold tracking-wide shadow-sm">
@@ -305,7 +303,7 @@ const SwipeCards = () => {
         </div>
         
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-5 flex flex-col items-center gap-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-5 flex flex-col items-center ">
           <div className="relative w-full h-56 flex items-center justify-center">
             <AnimatePresence custom={direction} mode="wait">
               <motion.div
@@ -324,7 +322,6 @@ const SwipeCards = () => {
                 style={{
                   backgroundImage: (() => {
                     const imageUrl = currentCard.images?.[0] || currentCard.petInfo?.images?.[0];
-                    console.log('Image URL for card:', imageUrl);
                     return imageUrl ? `url(${imageUrl})` : "url('https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400')";
                   })(),
                   touchAction: 'pan-x',
@@ -473,7 +470,7 @@ const SwipeCards = () => {
                           handleSwipe("right");
                           setShowAIMatches(false);
                         }}
-                        className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                        className="flex-1 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
                       >
                         ❤️ Like
                       </button>

@@ -37,7 +37,7 @@ const Adopt = () => {
     queryKey: ["adoptionPosts", search, type, availability],
     queryFn: async () => {
       const online = await isActuallyOnline();
-      console.log("Network status (custom):", online);
+
 
       if (online) {
         try {
@@ -49,7 +49,7 @@ const Adopt = () => {
           // Save to IndexedDB
           await db.adoptionPosts.clear();
           await db.adoptionPosts.bulkPut(posts);
-          console.log("Fetched from server and saved to IndexedDB:", posts);
+         
 
           return posts;
         } catch (err) {
@@ -61,9 +61,9 @@ const Adopt = () => {
           return fallbackPosts;
         }
       } else {
-        console.log("📴 Offline mode: Fetching from IndexedDB");
+     
         const offlinePosts = await db.adoptionPosts.toArray();
-        console.log("Loaded from IndexedDB:", offlinePosts);
+    
         return offlinePosts;
       }
     },
